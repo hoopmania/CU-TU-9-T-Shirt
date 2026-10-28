@@ -83,8 +83,10 @@ async function doSearch() {
   const area = document.getElementById('result-area');
   area.innerHTML = '<div class="card loading">กำลังค้นหา...</div>';
   try {
-    const url = SCRIPT_URL + '?action=checkStatus&q=' + encodeURIComponent(q);
-    const resp = await fetch(url);
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'checkStatus', q }),
+    });
     const data = await resp.json();
     if (data.status !== 'ok') throw new Error(data.message);
     const rows = data.rows || [];

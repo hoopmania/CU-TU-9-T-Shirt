@@ -172,7 +172,10 @@ async function loadData() {
   document.getElementById('daily-loading').style.display = 'block';
   document.getElementById('daily-table').style.display = 'none';
   try {
-    const resp = await fetch(SCRIPT_URL + '?action=getOrders&pass=' + encodeURIComponent(ADMIN_PASS));
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'getOrders', pass: ADMIN_PASS }),
+    });
     const data = await resp.json();
     if (data.status !== 'ok') throw new Error(data.message);
     allRows = data.rows || [];
