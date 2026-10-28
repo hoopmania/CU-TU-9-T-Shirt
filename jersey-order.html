@@ -335,9 +335,8 @@
     </div>
 
     <div class="field">
-      <label class="field-label" for="line-id">LINE ID <span class="required">*</span></label>
+      <label class="field-label" for="line-id">LINE ID</label>
       <input type="text" id="line-id" placeholder="เช่น @myline หรือ lineid123">
-      <div class="err" id="err-line">กรุณากรอก LINE ID</div>
     </div>
 
     <!-- Orders by color -->
@@ -661,8 +660,7 @@ async function submitOrder() {
   const phoneOk = /^[0-9]{10}$/.test(phone);
   setErr('err-phone', !phoneOk); setInvalid('phone', !phoneOk); if (!phoneOk) ok = false;
 
-  const lineOk = lineId.length >= 1;
-  setErr('err-line', !lineOk); setInvalid('line-id', !lineOk); if (!lineOk) ok = false;
+  // LINE ID ไม่บังคับ
 
 const colorOk = navyOn || whiteOn;
   setErr('err-color', !colorOk); if (!colorOk) ok = false;
@@ -683,7 +681,7 @@ const colorOk = navyOn || whiteOn;
   const deliveryOk = delivery !== '';
   setErr('err-delivery', !deliveryOk); if (!deliveryOk) ok = false;
 
-  const addrOk = delivery !== 'ship' || address.length >= 5;
+  const addrOk = delivery !== 'ship' || address.length >= 1;
   setErr('err-address', !addrOk); setInvalid('address', !addrOk); if (!addrOk) ok = false;
 
   const slipOk = !!slip;
