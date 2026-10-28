@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สั่งซื้อเสื้อที่ระลึก CU-TU Basketball Alumni #9</title>
+<meta name="description" content="ฟอร์มสั่งซื้อเสื้อที่ระลึก CU-TU Basketball Alumni #9 ราคาตัวละ 300 บาท มี 2 สี สีกรม (Chula) และสีขาว (Thammasat) ผ้าฝ้ายเนื้อดีเกรดพรีเมี่ยม">
+<meta property="og:title" content="สั่งซื้อเสื้อที่ระลึก CU-TU Basketball Alumni #9">
+<meta property="og:description" content="ฟอร์มสั่งซื้อเสื้อที่ระลึก CU-TU Basketball Alumni #9 ราคาตัวละ 300 บาท มี 2 สี สีกรม (Chula) และสีขาว (Thammasat) ผ้าฝ้ายเนื้อดีเกรดพรีเมี่ยม">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hoopmania.github.io/CU-TU-9-T-Shirt/jersey-order.html">
+<meta property="og:image" content="https://hoopmania.github.io/CU-TU-9-T-Shirt/jersey-navy.jpg">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sarabun', sans-serif; background: #f5f5f5; color: #222; font-size: 16px; }
+  a { color: #1a56db; }
+
+  .page-header {
+    background: linear-gradient(135deg, #0a1f5c 0%, #1a3a9c 100%);
+    color: #fff;
+    text-align: center;
+    padding: 28px 20px 20px;
+  }
+  .page-header h1 { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+  .page-header p { margin-top: 6px; font-size: 0.95rem; opacity: 0.85; }
+  .hero-banner { width: 100%; display: block; max-height: 360px; object-fit: cover; object-position: center top; }
+  .deadline-banner {
+    background: #d32f2f;
+    color: #fff;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .deadline-banner span { display: block; font-size: 0.82rem; font-weight: 400; opacity: 0.92; margin-top: 2px; }
+
+  .container { max-width: 600px; margin: 0 auto; padding: 0 16px 60px; }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  }
+  .card h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0a1f5c;
+    border-left: 4px solid #0a1f5c;
+    padding-left: 10px;
+    margin-bottom: 16px;
+  }
+
+  /* Jersey preview */
+  .jersey-preview {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .jersey-preview .preview-item {
+    flex: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #e0e0e0;
+    text-align: center;
+  }
+  .jersey-preview .preview-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+  }
+  .jersey-preview .preview-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 4px;
+    background: #f5f5f5;
+    color: #444;
+  }
+
+  /* Size chart */
+  .size-chart-wrap { text-align: center; margin-top: 8px; }
+  .size-chart-wrap img { width: 100%; border-radius: 8px; cursor: pointer; }
+  .size-chart-link { font-size: 0.85rem; color: #1a56db; cursor: pointer; margin-top: 4px; display: inline-block; }
+
+  /* Form fields */
+  .field { margin-bottom: 14px; }
+  label.field-label { display: block; font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 5px; }
+  .required { color: #e53e3e; }
+  input[type="text"], input[type="tel"], select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  input[type="text"]:focus, input[type="tel"]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #0a1f5c;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  .err { font-size: 0.8rem; color: #e53e3e; margin-top: 3px; display: none; }
+  .err.show { display: block; }
+  input.invalid, select.invalid, textarea.invalid { border-color: #e53e3e; }
+
+  /* Color options */
+  .color-options { display: flex; flex-direction: column; gap: 10px; }
+  .color-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .color-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+  .color-option.selected { border-color: #0a1f5c; background: #f0f4ff; }
+  .swatch-group { display: flex; gap: 4px; }
+  .swatch {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.15);
+    flex-shrink: 0;
+  }
+  .swatch.navy { background: #0a1f5c; }
+  .swatch.white { background: #fff; border-color: #bbb; }
+  .co-text { flex: 1; }
+  .co-title { font-weight: 700; font-size: 0.95rem; display: block; }
+  .co-sub { font-size: 0.8rem; color: #666; }
+  .co-check {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .color-option.selected .co-check {
+    background: #0a1f5c;
+    border-color: #0a1f5c;
+  }
+  .color-option.selected .co-check::after {
+    content: '';
+    width: 8px; height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    display: block;
+  }
+
+  /* Qty control */
+  .qty-wrap { display: flex; align-items: center; gap: 8px; }
+  .qty-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 2px solid #0a1f5c;
+    background: #fff;
+    color: #0a1f5c;
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none;
+    transition: background 0.1s;
+  }
+  .qty-btn:active { background: #e8eeff; }
+  .qty-num {
+    width: 52px;
+    text-align: center;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 6px 0;
+  }
+
+  /* Summary */
+  .summary-box {
+    background: #f0f4ff;
+    border: 1.5px solid #c3cff8;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 4px;
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.95rem;
+  }
+  .summary-row.total {
+    border-top: 1.5px solid #c3cff8;
+    margin-top: 6px;
+    padding-top: 8px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #0a1f5c;
+  }
+
+  /* Payment */
+  .payment-qr { text-align: center; }
+  .payment-qr img { max-width: 280px; width: 100%; border-radius: 10px; border: 1px solid #e0e0e0; }
+  .acct-info { background: #f9fafb; border-radius: 8px; padding: 12px 14px; margin-top: 10px; font-size: 0.9rem; line-height: 1.8; }
+  .acct-info strong { color: #0a1f5c; }
+
+  /* Slip upload */
+  .slip-upload-area {
+    border: 2px dashed #c3cff8;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    background: #f8faff;
+    transition: border-color 0.15s;
+  }
+  .slip-upload-area:hover { border-color: #0a1f5c; }
+  .slip-upload-area input[type="file"] { display: none; }
+  .slip-icon { font-size: 2rem; margin-bottom: 6px; }
+  .slip-label { font-size: 0.9rem; color: #555; }
+  .slip-preview { max-width: 200px; border-radius: 8px; margin-top: 10px; display: none; }
+
+  /* Submit */
+  #btn-submit {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #0a1f5c 0%, #1a3a9c 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    font-family: inherit;
+    transition: opacity 0.15s;
+  }
+  #btn-submit:hover { opacity: 0.9; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px 24px;
+    max-width: 360px;
+    width: calc(100% - 32px);
+    text-align: center;
+  }
+  .modal-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .modal h3 { font-size: 1.15rem; font-weight: 700; color: #0a1f5c; }
+  .modal p { font-size: 0.9rem; color: #555; margin-top: 8px; line-height: 1.6; }
+  .modal-close {
+    margin-top: 18px;
+    background: #0a1f5c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  /* Size modal */
+  .size-modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .size-modal-overlay.open { display: flex; }
+  .size-modal { max-width: 95vw; }
+  .size-modal img { max-width: 95vw; max-height: 90vh; border-radius: 10px; }
+
+  @media (max-width: 400px) {
+    .jersey-preview .preview-item img { height: 160px; }
+    .page-header h1 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+<img src="promo-banner.jpg" alt="CU-TU Basketball Alumni #9" class="hero-banner">
+<div class="page-header">
+  <h1>🏀 เสื้อที่ระลึก CU-TU Basketball Alumni #9</h1>
+  <p>ราคาตัวละ <strong>300 บาท</strong> &nbsp;|&nbsp; 2 สี: กรม (Chula) และ ขาว (Thammasat)</p>
+  <p style="font-size:0.82rem;opacity:0.75;margin-top:4px;">ผ้าฝ้ายเนื้อดีเกรดพรีเมี่ยม</p>
+</div>
+<div class="deadline-banner">
+  ⏰ ปิดรับจองวันที่ 8 พฤศจิกายน 2026 เท่านั้น!
+  <span>ล็อตเดียวเท่านั้น — พลาดแล้วอาจหมดโอกาสเป็นเจ้าของ</span>
+</div>
+
+<div class="container">
+
+  <!-- Jersey Preview -->
+  <div class="card" style="padding:0;overflow:hidden;">
+    <img src="jersey-product.jpg" alt="เสื้อที่ระลึก CU-TU สีกรม Chula และสีขาว Thammasat" style="width:100%;display:block;border-radius:12px 12px 0 0;">
+    <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:0.85rem;color:#555;">สีขาว (Thammasat) &nbsp;|&nbsp; สีกรม (Chula)</span>
+      <span class="size-chart-link" onclick="openSizeChart()">📐 ดูตารางไซส์</span>
+    </div>
+  </div>
+
+  <!-- Order Form -->
+  <div class="card">
+    <h2>กรอกข้อมูลสั่งซื้อ</h2>
+
+    <div class="field">
+      <label class="field-label" for="buyer-name">ชื่อ-นามสกุล <span class="required">*</span></label>
+      <input type="text" id="buyer-name" placeholder="เช่น สมชาย ใจดี">
+      <div class="err" id="err-name">กรุณากรอกชื่อ-นามสกุล</div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="phone">เบอร์โทรศัพท์ <span class="required">*</span></label>
+      <input type="tel" id="phone" placeholder="0812345678" maxlength="10" inputmode="numeric">
+      <div class="err" id="err-phone">⚠️ กรุณากรอกเบอร์โทร 10 หลัก (จำเป็นสำหรับการจัดส่ง)</div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="line-id">LINE ID <span class="required">*</span></label>
+      <input type="text" id="line-id" placeholder="เช่น @myline หรือ lineid123">
+      <div class="err" id="err-line">กรุณากรอก LINE ID</div>
+    </div>
+
+    <!-- Orders by color -->
+    <div style="margin-bottom:14px;">
+      <label class="field-label">สีเสื้อและไซส์ <span class="required">*</span></label>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:10px;">เลือกสีที่ต้องการ ถ้าต้องการหลายสีให้กรอกทั้งสองสี</p>
+
+      <!-- Navy order -->
+      <div class="color-section" id="section-navy" style="border:2px solid #e0e0e0;border-radius:10px;padding:14px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <input type="checkbox" id="chk-navy" onchange="toggleColor('navy')" style="width:18px;height:18px;cursor:pointer;accent-color:#0a1f5c;">
+          <label for="chk-navy" style="font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">
+            <span class="swatch navy" style="width:22px;height:22px;border-radius:50%;border:2px solid rgba(0,0,0,0.15);display:inline-block;flex-shrink:0;"></span>
+            สีกรม (Chula) — 300 ฿/ตัว
+            <span style="display:block;font-size:0.75rem;font-weight:400;color:#666;margin-top:2px;">ผ้าฝ้ายเกรดพรีเมี่ยม</span>
+          </label>
+        </div>
+        <div id="navy-fields" style="display:none;">
+          <div class="field" style="margin-bottom:10px;">
+            <label class="field-label" for="size-navy">ไซส์เสื้อสีกรม <span class="required">*</span></label>
+            <select id="size-navy" onchange="if(this.value){setErr('err-size-navy',false);setInvalid('size-navy',false);document.getElementById('section-navy').style.borderColor='#0a1f5c';}">
+              <option value="">-- เลือกไซส์ --</option>
+              <option>KID1</option><option>KID2</option><option>KID3</option>
+              <option>2XS</option><option>XS</option><option>S</option><option>M</option>
+              <option>L</option><option>XL</option><option>2XL</option><option>3XL</option>
+              <option>4XL</option><option>5XL</option><option>6XL</option><option>7XL</option>
+              <option>8XL</option><option>EXTRA</option>
+            </select>
+            <div class="err" id="err-size-navy">⚠️ กรุณาเลือกไซส์ก่อน ไม่สามารถดำเนินการต่อได้</div>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label class="field-label">จำนวน</label>
+            <div class="qty-wrap">
+              <button class="qty-btn" type="button" onclick="changeQty('navy',-1)">−</button>
+              <input type="text" class="qty-num" id="qty-navy" value="1" readonly>
+              <button class="qty-btn" type="button" onclick="changeQty('navy',1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- White order -->
+      <div class="color-section" id="section-white" style="border:2px solid #e0e0e0;border-radius:10px;padding:14px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <input type="checkbox" id="chk-white" onchange="toggleColor('white')" style="width:18px;height:18px;cursor:pointer;accent-color:#0a1f5c;">
+          <label for="chk-white" style="font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">
+            <span class="swatch white" style="width:22px;height:22px;border-radius:50%;border:2px solid #bbb;display:inline-block;flex-shrink:0;"></span>
+            สีขาว (Thammasat) — 300 ฿/ตัว
+            <span style="display:block;font-size:0.75rem;font-weight:400;color:#666;margin-top:2px;">ผ้าฝ้ายเกรดพรีเมี่ยม</span>
+          </label>
+        </div>
+        <div id="white-fields" style="display:none;">
+          <div class="field" style="margin-bottom:10px;">
+            <label class="field-label" for="size-white">ไซส์เสื้อสีขาว <span class="required">*</span></label>
+            <select id="size-white" onchange="if(this.value){setErr('err-size-white',false);setInvalid('size-white',false);document.getElementById('section-white').style.borderColor='#0a1f5c';}">
+              <option value="">-- เลือกไซส์ --</option>
+              <option>KID1</option><option>KID2</option><option>KID3</option>
+              <option>2XS</option><option>XS</option><option>S</option><option>M</option>
+              <option>L</option><option>XL</option><option>2XL</option><option>3XL</option>
+              <option>4XL</option><option>5XL</option><option>6XL</option><option>7XL</option>
+              <option>8XL</option><option>EXTRA</option>
+            </select>
+            <div class="err" id="err-size-white">⚠️ กรุณาเลือกไซส์ก่อน ไม่สามารถดำเนินการต่อได้</div>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label class="field-label">จำนวน</label>
+            <div class="qty-wrap">
+              <button class="qty-btn" type="button" onclick="changeQty('white',-1)">−</button>
+              <input type="text" class="qty-num" id="qty-white" value="1" readonly>
+              <button class="qty-btn" type="button" onclick="changeQty('white',1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="err" id="err-color">กรุณาเลือกสีเสื้ออย่างน้อย 1 สี</div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-box" id="summary-box" style="display:none;">
+      <div class="summary-row" id="sum-navy-row" style="display:none;">
+        <span id="sum-navy-label">สีกรม × 1</span><span id="sum-navy-price">250 ฿</span>
+      </div>
+      <div class="summary-row" id="sum-white-row" style="display:none;">
+        <span id="sum-white-label">สีขาว × 1</span><span id="sum-white-price">250 ฿</span>
+      </div>
+      <div class="summary-row" id="sum-shipping-row" style="display:none;">
+        <span>ค่าจัดส่ง</span><span>50 ฿</span>
+      </div>
+      <div class="summary-row total">
+        <span>ยอดรวม</span><span id="sum-total">0 ฿</span>
+      </div>
+    </div>
+
+    <!-- Delivery method -->
+    <div class="field" style="margin-top:14px;">
+      <label class="field-label">วิธีรับเสื้อ <span class="required">*</span></label>
+      <div class="color-options" style="margin-top:4px;">
+        <label class="color-option" id="dlv-pickup-label" for="dlv-pickup">
+          <input type="radio" name="delivery" id="dlv-pickup" value="pickup" onchange="onDeliveryChange()">
+          <span style="font-size:1.4rem;">🤝</span>
+          <span class="co-text">
+            <span class="co-title">รับด้วยตัวเอง</span>
+            <span class="co-sub">นัดรับตามวันและสถานที่ที่แจ้ง — ไม่มีค่าจัดส่ง</span>
+          </span>
+          <span class="co-check"></span>
+        </label>
+        <label class="color-option" id="dlv-ship-label" for="dlv-ship">
+          <input type="radio" name="delivery" id="dlv-ship" value="ship" onchange="onDeliveryChange()">
+          <span style="font-size:1.4rem;">📦</span>
+          <span class="co-text">
+            <span class="co-title">จัดส่งถึงบ้าน (+50 ฿)</span>
+            <span class="co-sub">Kerry / Flash — กรุณากรอกที่อยู่</span>
+          </span>
+          <span class="co-check"></span>
+        </label>
+      </div>
+      <div class="err" id="err-delivery">กรุณาเลือกวิธีรับเสื้อ</div>
+    </div>
+
+    <!-- Shipping address (shown only when ship selected) -->
+    <div id="address-wrap" style="display:none;">
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:0.85rem;color:#795548;">
+        📋 กรุณากรอก <strong>ที่อยู่จัดส่ง</strong> และ <strong>เบอร์โทรศัพท์</strong> ให้ครบถ้วน เพื่อให้ทีมงานจัดส่งได้ถูกต้อง
+      </div>
+      <div class="field">
+        <label class="field-label" for="address">ที่อยู่จัดส่ง <span class="required">*</span></label>
+        <textarea id="address" placeholder="บ้านเลขที่ ซอย ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด รหัสไปรษณีย์"></textarea>
+        <div class="err" id="err-address">⚠️ กรุณากรอกที่อยู่จัดส่ง ไม่สามารถดำเนินการต่อได้</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="note">หมายเหตุ</label>
+      <input type="text" id="note" placeholder="(ถ้ามี)">
+    </div>
+  </div>
+
+  <!-- Payment -->
+  <div class="card">
+    <h2>ชำระเงิน</h2>
+    <div class="payment-qr">
+      <img src="promptpay-qr.jpg" alt="PromptPay QR Code">
+    </div>
+    <div class="acct-info">
+      <strong>ชื่อบัญชี:</strong> นายพลิษฐ์ หลิวกุลวัฒนา<br>
+      <strong>ธนาคาร:</strong> กรุงไทย (Krungthai) สาขาพาราไดซ์ พาร์ค<br>
+      <strong>เลขบัญชี:</strong> 699-0-18165-6
+    </div>
+  </div>
+
+  <!-- Slip upload -->
+  <div class="card">
+    <h2>แนบสลิปการโอนเงิน</h2>
+    <div class="slip-upload-area" onclick="document.getElementById('slip-input').click()">
+      <input type="file" id="slip-input" accept="image/*" onchange="previewSlip(event)">
+      <div class="slip-icon">📎</div>
+      <div class="slip-label">แตะเพื่อเลือกรูปสลิป</div>
+      <img class="slip-preview" id="slip-preview" alt="สลิป">
+    </div>
+    <div class="err" id="err-slip">กรุณาแนบสลิปการโอนเงิน</div>
+  </div>
+
+  <button id="btn-submit" onclick="submitOrder()">ส่งคำสั่งซื้อ</button>
+
+</div>
+
+<!-- Success modal -->
+<div class="modal-overlay" id="modal-success">
+  <div class="modal">
+    <div class="modal-icon">✅</div>
+    <h3>ส่งคำสั่งซื้อสำเร็จ!</h3>
+    <p id="modal-msg">ขอบคุณที่สั่งซื้อ ทีมงานจะติดต่อกลับทาง LINE ของคุณ</p>
+    <button class="modal-close" onclick="closeModal()">ปิด</button>
+  </div>
+</div>
+
+<!-- Size chart modal -->
+<div class="size-modal-overlay" id="size-modal" onclick="closeSizeChart()">
+  <div class="size-modal">
+    <img src="size-chart.jpg" alt="ตารางไซส์">
+  </div>
+</div>
+
+<script>
+const CONFIG = {
+  pricePerShirt: 300,
+  shippingFee: 50,
+  bankName: 'ธนาคารกรุงไทย (Krungthai)',
+  accountName: 'นายพลิษฐ์ หลิวกุลวัฒนา',
+  accountNumber: '699-0-18165-6',
+  lineId: 'kosamon',
+  scriptUrl: 'https://script.google.com/macros/s/AKfycby1WFbZqAnjNZ5y9ItgeFVT8WExMB2Whaf3WCCYTF3bh7sP8gfhRsuiW76BdjlBkS_K/exec', // ใส่ URL ของ Google Apps Script ที่นี่
+};
+
+let orderSubmitted = false;
+
+function toggleColor(color) {
+  const chk = document.getElementById('chk-' + color);
+  const fields = document.getElementById(color + '-fields');
+  const section = document.getElementById('section-' + color);
+  fields.style.display = chk.checked ? 'block' : 'none';
+  if (chk.checked) {
+    section.style.borderColor = '#0a1f5c';
+    // เตือนไซส์ทันทีถ้ายังไม่เลือก
+    const sizeEl = document.getElementById('size-' + color);
+    if (!sizeEl.value) {
+      setErr('err-size-' + color, true);
+      setInvalid('size-' + color, true);
+    }
+    setTimeout(() => sizeEl.focus(), 50);
+  } else {
+    section.style.borderColor = '#e0e0e0';
+    setErr('err-size-' + color, false);
+    setInvalid('size-' + color, false);
+  }
+  updateSummary();
+}
+
+function changeQty(color, delta) {
+  const el = document.getElementById('qty-' + color);
+  let val = parseInt(el.value) + delta;
+  if (val < 1) val = 1;
+  if (val > 99) val = 99;
+  el.value = val;
+  updateSummary();
+}
+
+function updateSummary() {
+  const navyOn = document.getElementById('chk-navy').checked;
+  const whiteOn = document.getElementById('chk-white').checked;
+  const navyQty = parseInt(document.getElementById('qty-navy').value) || 1;
+  const whiteQty = parseInt(document.getElementById('qty-white').value) || 1;
+  const P = CONFIG.pricePerShirt;
+
+  const box = document.getElementById('summary-box');
+  const navyRow = document.getElementById('sum-navy-row');
+  const whiteRow = document.getElementById('sum-white-row');
+
+  if (!navyOn && !whiteOn) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+
+  let total = 0;
+  if (navyOn) {
+    navyRow.style.display = 'flex';
+    document.getElementById('sum-navy-label').textContent = 'สีกรม × ' + navyQty;
+    document.getElementById('sum-navy-price').textContent = (navyQty * P).toLocaleString() + ' ฿';
+    total += navyQty * P;
+  } else { navyRow.style.display = 'none'; }
+
+  if (whiteOn) {
+    whiteRow.style.display = 'flex';
+    document.getElementById('sum-white-label').textContent = 'สีขาว × ' + whiteQty;
+    document.getElementById('sum-white-price').textContent = (whiteQty * P).toLocaleString() + ' ฿';
+    total += whiteQty * P;
+  } else { whiteRow.style.display = 'none'; }
+
+  const isShip = document.querySelector('input[name="delivery"]:checked')?.value === 'ship';
+  const shipping = isShip ? CONFIG.shippingFee : 0;
+  document.getElementById('sum-shipping-row').style.display = isShip ? 'flex' : 'none';
+  document.getElementById('sum-total').textContent = (total + shipping).toLocaleString() + ' ฿';
+}
+
+function previewSlip(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById('slip-preview');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+    document.querySelector('.slip-label').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function onDeliveryChange() {
+  const val = document.querySelector('input[name="delivery"]:checked')?.value;
+  document.getElementById('address-wrap').style.display = val === 'ship' ? 'block' : 'none';
+  // style radio cards
+  document.getElementById('dlv-pickup-label').classList.toggle('selected', val === 'pickup');
+  document.getElementById('dlv-ship-label').classList.toggle('selected', val === 'ship');
+  setErr('err-delivery', false);
+  updateSummary();
+}
+
+function openSizeChart() { document.getElementById('size-modal').classList.add('open'); }
+function closeSizeChart() { document.getElementById('size-modal').classList.remove('open'); }
+function closeModal() { document.getElementById('modal-success').classList.remove('open'); }
+
+function setErr(id, show) {
+  const el = document.getElementById(id);
+  if (show) el.classList.add('show'); else el.classList.remove('show');
+}
+
+function setInvalid(id, invalid) {
+  const el = document.getElementById(id);
+  if (invalid) el.classList.add('invalid'); else el.classList.remove('invalid');
+}
+
+async function submitOrder() {
+  if (orderSubmitted) return;
+
+  // Validate
+  let ok = true;
+  const buyerName = document.getElementById('buyer-name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const lineId = document.getElementById('line-id').value.trim();
+  const delivery = document.querySelector('input[name="delivery"]:checked')?.value || '';
+  const address = document.getElementById('address').value.trim();
+  const navyOn = document.getElementById('chk-navy').checked;
+  const whiteOn = document.getElementById('chk-white').checked;
+  const navySize = document.getElementById('size-navy').value;
+  const whiteSize = document.getElementById('size-white').value;
+  const navyQty = parseInt(document.getElementById('qty-navy').value) || 0;
+  const whiteQty = parseInt(document.getElementById('qty-white').value) || 0;
+  const slip = document.getElementById('slip-input').files[0];
+
+  const nameOk = buyerName.length >= 2;
+  setErr('err-name', !nameOk); setInvalid('buyer-name', !nameOk); if (!nameOk) ok = false;
+
+  const phoneOk = /^[0-9]{10}$/.test(phone);
+  setErr('err-phone', !phoneOk); setInvalid('phone', !phoneOk); if (!phoneOk) ok = false;
+
+  const lineOk = lineId.length >= 1;
+  setErr('err-line', !lineOk); setInvalid('line-id', !lineOk); if (!lineOk) ok = false;
+
+const colorOk = navyOn || whiteOn;
+  setErr('err-color', !colorOk); if (!colorOk) ok = false;
+
+  if (navyOn) {
+    const sOk = navySize !== '';
+    setErr('err-size-navy', !sOk); setInvalid('size-navy', !sOk);
+    document.getElementById('section-navy').style.borderColor = sOk ? '#0a1f5c' : '#e53e3e';
+    if (!sOk) ok = false;
+  }
+  if (whiteOn) {
+    const sOk = whiteSize !== '';
+    setErr('err-size-white', !sOk); setInvalid('size-white', !sOk);
+    document.getElementById('section-white').style.borderColor = sOk ? '#e0e0e0' : '#e53e3e';
+    if (!sOk) ok = false;
+  }
+
+  const deliveryOk = delivery !== '';
+  setErr('err-delivery', !deliveryOk); if (!deliveryOk) ok = false;
+
+  const addrOk = delivery !== 'ship' || address.length >= 5;
+  setErr('err-address', !addrOk); setInvalid('address', !addrOk); if (!addrOk) ok = false;
+
+  const slipOk = !!slip;
+  setErr('err-slip', !slipOk); if (!slipOk) ok = false;
+
+  if (!ok) {
+    const firstErr = document.querySelector('.err.show');
+    if (firstErr) firstErr.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
+  orderSubmitted = true;
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed';
+  btn.textContent = '⏳ กำลังส่งคำสั่งซื้อ...';
+
+  // Encode slip
+  let slipBase64 = '';
+  if (slip) {
+    slipBase64 = await new Promise(res => {
+      const r = new FileReader();
+      r.onload = e => res(e.target.result.split(',')[1]);
+      r.readAsDataURL(slip);
+    });
+  }
+
+  const totalQty = (navyOn ? navyQty : 0) + (whiteOn ? whiteQty : 0);
+  const subtotal = (navyOn ? navyQty * CONFIG.pricePerShirt : 0) + (whiteOn ? whiteQty * CONFIG.pricePerShirt : 0);
+  const shippingFee = delivery === 'ship' ? CONFIG.shippingFee : 0;
+  const grandTotal = subtotal + shippingFee;
+
+  const colorSummary = [
+    navyOn ? `กรม ${navyQty} ตัว (ไซส์ ${navySize})` : '',
+    whiteOn ? `ขาว ${whiteQty} ตัว (ไซส์ ${whiteSize})` : '',
+  ].filter(Boolean).join(', ');
+
+  const payload = {
+    buyerName, phone, lineId, colorSummary,
+    navyOn, navySize: navyOn ? navySize : '', navyQty: navyOn ? navyQty : 0,
+    whiteOn, whiteSize: whiteOn ? whiteSize : '', whiteQty: whiteOn ? whiteQty : 0,
+    delivery, totalQty, subtotal, shippingFee, grandTotal,
+    address: delivery === 'ship' ? address : '',
+    note: document.getElementById('note').value.trim(),
+    slipBase64, slipFileName: slip ? slip.name : '',
+  };
+
+  try {
+    if (!CONFIG.scriptUrl) throw new Error('No scriptUrl configured');
+    const resp = await fetch(CONFIG.scriptUrl, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (data.status !== 'ok') throw new Error(data.message || 'Error');
+    document.getElementById('modal-msg').textContent =
+      `ขอบคุณ ${buyerName} ที่สั่งซื้อ! รวม ${totalQty} ตัว + ค่าส่ง = ${grandTotal.toLocaleString()} ฿ ทีมงานจะติดต่อกลับทาง LINE: ${lineId}`;
+    document.getElementById('modal-success').classList.add('open');
+    btn.textContent = '✅ ส่งสำเร็จแล้ว';
+  } catch(e) {
+    orderSubmitted = false;
+    btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+    btn.textContent = 'ส่งคำสั่งซื้อ';
+    alert('เกิดข้อผิดพลาด: ' + e.message + '\nกรุณาลองใหม่อีกครั้ง');
+  }
+}
+</script>
+</body>
+</html>
