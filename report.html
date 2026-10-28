@@ -190,15 +190,16 @@ async function loadData() {
 
 function renderStats() {
   const orders = new Set(allRows.map(r => r.orderId));
-  const revenue = allRows.reduce((s, r) => {
-    const g = parseFloat(r.grandTotal) || 0;
-    return s + (r.entryIndex == 1 ? g : 0);
-  }, 0);
+  // Sum grandTotal only from rows where it's non-empty (first row per order)
+  const revenue = allRows.reduce((s, r) => s + (r.grandTotal ? (parseFloat(r.grandTotal)||0) : 0), 0);
+  const totalShirts = allRows.reduce((s, r) => s + (parseInt(r.qty)||0), 0);
+  const navyCount = allRows.filter(r => r.navySize).length;
+  const whiteCount = allRows.filter(r => r.whiteSize).length;
   document.getElementById('st-orders').textContent = orders.size;
-  document.getElementById('st-shirts').textContent = allRows.length;
+  document.getElementById('st-shirts').textContent = totalShirts;
   document.getElementById('st-revenue').textContent = revenue.toLocaleString();
-  document.getElementById('st-navy').textContent = allRows.filter(r => (r.color||'').includes('กรม')).length;
-  document.getElementById('st-white').textContent = allRows.filter(r => (r.color||'').includes('ขาว')).length;
+  document.getElementById('st-navy').textContent = navyCount;
+  document.getElementById('st-white').textContent = whiteCount;
 }
 
 function showBreakdown(tab) {
@@ -209,28 +210,52 @@ function showBreakdown(tab) {
   });
 
   const groups = {};
-  allRows.forEach(r => {
-    const key = tab === 'team' ? (r.team||'-')
-              : tab === 'div' ? (r.division||'-')
-              : tab === 'color' ? ('สี' + (r.color||'-'))
-              : (r.size||'-');
-    if (!groups[key]) groups[key] = { total: 0, navy: 0, white: 0 };
-    groups[key].total++;
-    if ((r.color||'').includes('กรม')) groups[key].navy++;
-    if ((r.color||'').includes('ขาว')) groups[key].white++;
-  });
+  if (tab === 'color') {
+    // Expand virtual rows per color
+    allRows.forEach(r => {
+      if (r.navySize) {
+        const k = 'สีกรม';
+        if (!groups[k]) groups[k] = { total: 0, navy: 0, white: 0 };
+        groups[k].total++; groups[k].navy++;
+      }
+      if (r.whiteSize) {
+        const k = 'สีขาว';
+        if (!groups[k]) groups[k] = { total: 0, navy: 0, white: 0 };
+        groups[k].total++; groups[k].white++;
+      }
+    });
+  } else if (tab === 'size') {
+    allRows.forEach(r => {
+      [[r.navySize,'สีกรม'],[r.whiteSize,'สีขาว']].forEach(([sz, colorLabel]) => {
+        if (!sz) return;
+        const k = `${sz} (${colorLabel})`;
+        if (!groups[k]) groups[k] = { total: 0, navy: 0, white: 0 };
+        groups[k].total++;
+        if (colorLabel === 'สีกรม') groups[k].navy++; else groups[k].white++;
+      });
+    });
+  } else {
+    allRows.forEach(r => {
+      const key = tab === 'team' ? (r.team||'-') : (r.division||'-');
+      const qty = parseInt(r.qty)||0;
+      if (!groups[key]) groups[key] = { total: 0, navy: 0, white: 0 };
+      groups[key].total += qty;
+      if (r.navySize) groups[key].navy++;
+      if (r.whiteSize) groups[key].white++;
+    });
+  }
 
   const label = tab === 'team' ? 'ทีม' : tab === 'div' ? 'รุ่น' : tab === 'color' ? 'สี' : 'ไซส์';
   document.getElementById('bk-head').innerHTML =
     `<tr><th>${label}</th><th class="num">ตัวรวม</th><th class="num">สีกรม</th><th class="num">สีขาว</th></tr>`;
 
   const sorted = Object.entries(groups).sort((a,b) => b[1].total - a[1].total);
-  const totalAll = allRows.length;
+  const totalShirts = allRows.reduce((s,r)=>s+(parseInt(r.qty)||0),0);
   document.getElementById('bk-body').innerHTML =
     sorted.map(([k, v]) =>
       `<tr><td>${k}</td><td class="num">${v.total}</td><td class="num">${v.navy||'-'}</td><td class="num">${v.white||'-'}</td></tr>`
     ).join('') +
-    `<tr class="total-row"><td>รวม</td><td class="num">${totalAll}</td><td class="num">${allRows.filter(r=>(r.color||'').includes('กรม')).length}</td><td class="num">${allRows.filter(r=>(r.color||'').includes('ขาว')).length}</td></tr>`;
+    `<tr class="total-row"><td>รวม</td><td class="num">${totalShirts}</td><td class="num">${allRows.filter(r=>r.navySize).length}</td><td class="num">${allRows.filter(r=>r.whiteSize).length}</td></tr>`;
 }
 
 function populateDateDropdown() {
@@ -261,13 +286,12 @@ function renderDaily() {
     const day = ts.toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' });
     if (filterDay && day !== filterDay) return;
     if (!days[day]) days[day] = { orders: new Set(), shirts: 0, navy: 0, white: 0, revenue: 0 };
-    days[day].shirts++;
-    if ((r.color||'').includes('กรม')) days[day].navy++;
-    if ((r.color||'').includes('ขาว')) days[day].white++;
-    if (!days[day].orders.has(r.orderId)) {
-      days[day].orders.add(r.orderId);
-      days[day].revenue += parseFloat(r.grandTotal) || 0;
-    }
+    days[day].shirts += (parseInt(r.qty)||0);
+    if (r.navySize) days[day].navy++;
+    if (r.whiteSize) days[day].white++;
+    days[day].orders.add(r.orderId);
+    // Only count grandTotal where non-empty (first row per order)
+    if (r.grandTotal) days[day].revenue += parseFloat(r.grandTotal) || 0;
   });
 
   document.getElementById('daily-loading').style.display = 'none';

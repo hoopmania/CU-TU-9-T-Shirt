@@ -1,95 +1,159 @@
 // CU-TU Basketball Alumni #9 — Apps Script
-// Each order stores one row per entry (per shirt per person)
+// 1 row per entry (one person's order), navy+white on same row
 
 const SHEET_NAME = 'Orders';
 const ADMIN_PASS = 'cutuba9';
 
-const COL = {
-  TIMESTAMP: 1, ORDER_ID: 2, BUYER_NAME: 3, PHONE: 4, LINE_ID: 5,
-  DELIVERY: 6, ADDRESS: 7, GRAND_TOTAL: 8, ENTRY_INDEX: 9,
-  FOR_WHOM: 10, TEAM: 11, DIVISION: 12, COLOR: 13, SIZE: 14,
-  PRICE: 15, STATUS: 16, NOTE: 17,
+// Columns (1-based)
+const C = {
+  TIMESTAMP:   1,   // วันที่
+  ORDER_ID:    2,   // เลขออร์เดอร์
+  BUYER_NAME:  3,   // ชื่อผู้สั่ง
+  PHONE:       4,   // โทร
+  LINE_ID:     5,   // LINE ID
+  ENTRY_NO:    6,   // ตัวที่
+  FOR_WHOM:    7,   // สำหรับ
+  TEAM:        8,   // ทีม
+  DIVISION:    9,   // รุ่น
+  NAVY_SIZE:   10,  // สีกรม — ไซส์
+  WHITE_SIZE:  11,  // สีขาว — ไซส์
+  QTY:         12,  // จำนวนตัว
+  DELIVERY:    13,  // วิธีรับ
+  ADDRESS:     14,  // ที่อยู่
+  SHIP_FEE:    15,  // ค่าส่ง
+  PRICE:       16,  // ยอดเสื้อ
+  GRAND_TOTAL: 17,  // ยอดรวม
+  STATUS:      18,  // สถานะ
+  NOTE:        19,  // หมายเหตุ
 };
+const NUM_COLS = 19;
+
+const HEADERS = [
+  'วันที่','เลขออร์เดอร์','ชื่อผู้สั่ง','โทร','LINE ID',
+  'ตัวที่','สำหรับ','ทีม','รุ่น',
+  'สีกรม — ไซส์','สีขาว — ไซส์','จำนวนตัว',
+  'วิธีรับ','ที่อยู่จัดส่ง','ค่าส่ง','ยอดเสื้อ','ยอดรวม',
+  'สถานะ','หมายเหตุ'
+];
 
 function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents);
     const action = payload.action || 'order';
     if (action === 'updateStatus') return handleUpdateStatus(payload);
-    if (action === 'getOrders') return handleGetOrders(payload);
-    if (action === 'checkStatus') return handleCheckStatus(payload);
+    if (action === 'getOrders')    return handleGetOrders(payload);
+    if (action === 'checkStatus')  return handleCheckStatus(payload);
     return handleOrder(payload);
   } catch (err) {
     return jsonResp({ status: 'error', message: String(err.message) });
   }
 }
 
-// Keep doGet for direct browser testing only
 function doGet(e) {
-  return jsonResp({ status: 'ok', message: 'Use POST requests' });
+  return jsonResp({ status: 'ok', message: 'Use POST' });
 }
 
+// ─── Setup ───────────────────────────────────────────────────────────────────
+function setupSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
+
+  const hRange = sheet.getRange(1, 1, 1, NUM_COLS);
+  hRange.setValues([HEADERS]);
+  hRange.setFontWeight('bold')
+        .setBackground('#0a1f5c')
+        .setFontColor('#ffffff')
+        .setHorizontalAlignment('center');
+  sheet.setFrozenRows(1);
+
+  // Force phone column to text so leading 0 is preserved
+  sheet.getRange(2, C.PHONE, sheet.getMaxRows() - 1, 1).setNumberFormat('@');
+
+  // Column widths
+  sheet.setColumnWidth(C.TIMESTAMP, 140);
+  sheet.setColumnWidth(C.ORDER_ID,  120);
+  sheet.setColumnWidth(C.BUYER_NAME,140);
+  sheet.setColumnWidth(C.PHONE,     110);
+  sheet.setColumnWidth(C.ADDRESS,   200);
+
+  SpreadsheetApp.flush();
+  Logger.log('setupSheet done — ' + SHEET_NAME);
+}
+
+// ─── Order ────────────────────────────────────────────────────────────────────
 function handleOrder(payload) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    const headers = ['วันที่','เลขออร์เดอร์','ชื่อผู้สั่ง','โทร','LINE ID','วิธีรับ','ที่อยู่','ยอดรวม','ตัวที่','สำหรับ','ทีม','รุ่น','สีเสื้อ','ไซส์','ราคา','สถานะ','หมายเหตุ'];
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers])
-      .setFontWeight('bold').setBackground('#0a1f5c').setFontColor('#ffffff');
+    sheet.getRange(1, 1, 1, NUM_COLS).setValues([HEADERS])
+         .setFontWeight('bold').setBackground('#0a1f5c').setFontColor('#ffffff');
     sheet.setFrozenRows(1);
   }
 
   const ts = new Date();
-  const orderId = payload.orderId || ('CU' + ts.getTime().toString().slice(-8));
+  const orderId = String(payload.orderId || ('CU' + ts.getTime().toString().slice(-8)));
   const entries = payload.entries || [];
+  const isShip = payload.delivery === 'ship';
+  const shippingFee = isShip ? (payload.shippingFee || 50) : 0;
 
-  // Expand entries: each entry may have navy and/or white
   const rows = [];
   entries.forEach((entry, i) => {
-    const colors = [];
-    if (entry.navyOn && entry.navySize) colors.push({ color: 'กรม', size: entry.navySize });
-    if (entry.whiteOn && entry.whiteSize) colors.push({ color: 'ขาว', size: entry.whiteSize });
-    colors.forEach(c => {
-      const row = new Array(17).fill('');
-      row[COL.TIMESTAMP - 1] = ts;
-      row[COL.ORDER_ID - 1] = orderId;
-      row[COL.BUYER_NAME - 1] = String(payload.buyerName || '');
-      row[COL.PHONE - 1] = String(payload.phone || '');
-      row[COL.LINE_ID - 1] = String(payload.lineId || '');
-      row[COL.DELIVERY - 1] = String(payload.delivery || '');
-      row[COL.ADDRESS - 1] = String(payload.address || '');
-      row[COL.GRAND_TOTAL - 1] = rows.length === 0 ? (payload.grandTotal || 0) : '';
-      row[COL.ENTRY_INDEX - 1] = i + 1;
-      row[COL.FOR_WHOM - 1] = String(entry.forWhom || '');
-      row[COL.TEAM - 1] = String(entry.team || '');
-      row[COL.DIVISION - 1] = String(entry.division || '');
-      row[COL.COLOR - 1] = c.color;
-      row[COL.SIZE - 1] = c.size;
-      row[COL.PRICE - 1] = 300;
-      row[COL.STATUS - 1] = payload.delivery === 'ship' ? 'ส่งที่บ้าน' : 'ยังไม่รับ';
-      row[COL.NOTE - 1] = rows.length === 0 ? String(payload.note || '') : '';
-      rows.push(row);
-    });
+    const navySize  = (entry.navyOn  && entry.navySize)  ? entry.navySize  : '';
+    const whiteSize = (entry.whiteOn && entry.whiteSize) ? entry.whiteSize : '';
+    if (!navySize && !whiteSize) return; // skip empty entry
+
+    const qty = (navySize ? 1 : 0) + (whiteSize ? 1 : 0);
+    const entryPrice = qty * 300;
+    const isFirstRow = rows.length === 0;
+
+    const row = new Array(NUM_COLS).fill('');
+    row[C.TIMESTAMP   - 1] = ts;
+    row[C.ORDER_ID    - 1] = orderId;
+    row[C.BUYER_NAME  - 1] = String(payload.buyerName || '');
+    row[C.PHONE       - 1] = String(payload.phone || '');  // stored as text via setNumberFormat
+    row[C.LINE_ID     - 1] = String(payload.lineId || '');
+    row[C.ENTRY_NO    - 1] = i + 1;
+    row[C.FOR_WHOM    - 1] = String(entry.forWhom || '');
+    row[C.TEAM        - 1] = String(entry.team || '');
+    row[C.DIVISION    - 1] = String(entry.division || '');
+    row[C.NAVY_SIZE   - 1] = navySize;
+    row[C.WHITE_SIZE  - 1] = whiteSize;
+    row[C.QTY         - 1] = qty;
+    row[C.DELIVERY    - 1] = isShip ? 'จัดส่ง' : 'รับเอง';
+    row[C.ADDRESS     - 1] = isShip ? String(payload.address || '') : '';
+    row[C.SHIP_FEE    - 1] = isFirstRow && isShip ? shippingFee : '';
+    row[C.PRICE       - 1] = entryPrice;
+    row[C.GRAND_TOTAL - 1] = isFirstRow ? (payload.grandTotal || 0) : '';
+    row[C.STATUS      - 1] = isShip ? 'ส่งที่บ้าน' : 'ยังไม่รับ';
+    row[C.NOTE        - 1] = isFirstRow ? String(payload.note || '') : '';
+    rows.push(row);
   });
 
   if (rows.length > 0) {
-    sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, 17).setValues(rows);
+    const firstRow = sheet.getLastRow() + 1;
+    const range = sheet.getRange(firstRow, 1, rows.length, NUM_COLS);
+    range.setValues(rows);
+    // Force phone column to text
+    sheet.getRange(firstRow, C.PHONE, rows.length, 1).setNumberFormat('@');
   }
 
   return jsonResp({ status: 'ok', orderId });
 }
 
+// ─── Update status ────────────────────────────────────────────────────────────
 function handleUpdateStatus(payload) {
   if (payload.pass !== ADMIN_PASS) return jsonResp({ status: 'error', message: 'Unauthorized' });
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   if (!sheet) return jsonResp({ status: 'error', message: 'Sheet not found' });
-  const rowIndex = parseInt(payload.rowIndex);
-  if (isNaN(rowIndex) || rowIndex < 2) return jsonResp({ status: 'error', message: 'Invalid row' });
-  sheet.getRange(rowIndex, COL.STATUS).setValue(String(payload.status || ''));
+  const row = parseInt(payload.rowIndex);
+  if (isNaN(row) || row < 2) return jsonResp({ status: 'error', message: 'Invalid row' });
+  sheet.getRange(row, C.STATUS).setValue(String(payload.status || ''));
   return jsonResp({ status: 'ok' });
 }
 
+// ─── Get all orders (admin) ───────────────────────────────────────────────────
 function handleGetOrders(payload) {
   if (payload.pass !== ADMIN_PASS) return jsonResp({ status: 'error', message: 'Unauthorized' });
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
@@ -98,29 +162,33 @@ function handleGetOrders(payload) {
   const rows = [];
   for (let i = 1; i < data.length; i++) {
     const r = data[i];
+    if (!r[C.ORDER_ID - 1]) continue; // skip empty rows
     rows.push({
-      rowIndex: i + 1,
-      timestamp: r[COL.TIMESTAMP-1] ? r[COL.TIMESTAMP-1].toString() : '',
-      orderId: String(r[COL.ORDER_ID-1] || ''),
-      buyerName: String(r[COL.BUYER_NAME-1] || ''),
-      phone: String(r[COL.PHONE-1] || ''),
-      lineId: String(r[COL.LINE_ID-1] || ''),
-      delivery: String(r[COL.DELIVERY-1] || ''),
-      address: String(r[COL.ADDRESS-1] || ''),
-      grandTotal: r[COL.GRAND_TOTAL-1] || 0,
-      entryIndex: r[COL.ENTRY_INDEX-1] || '',
-      forWhom: String(r[COL.FOR_WHOM-1] || ''),
-      team: String(r[COL.TEAM-1] || ''),
-      division: String(r[COL.DIVISION-1] || ''),
-      color: String(r[COL.COLOR-1] || ''),
-      size: String(r[COL.SIZE-1] || ''),
-      price: r[COL.PRICE-1] || 0,
-      status: String(r[COL.STATUS-1] || ''),
+      rowIndex:   i + 1,
+      timestamp:  r[C.TIMESTAMP-1]   ? r[C.TIMESTAMP-1].toString() : '',
+      orderId:    String(r[C.ORDER_ID-1]    || ''),
+      buyerName:  String(r[C.BUYER_NAME-1]  || ''),
+      phone:      String(r[C.PHONE-1]       || ''),
+      lineId:     String(r[C.LINE_ID-1]     || ''),
+      entryNo:    r[C.ENTRY_NO-1]    || '',
+      forWhom:    String(r[C.FOR_WHOM-1]    || ''),
+      team:       String(r[C.TEAM-1]        || ''),
+      division:   String(r[C.DIVISION-1]    || ''),
+      navySize:   String(r[C.NAVY_SIZE-1]   || ''),
+      whiteSize:  String(r[C.WHITE_SIZE-1]  || ''),
+      qty:        r[C.QTY-1]         || 0,
+      delivery:   String(r[C.DELIVERY-1]    || ''),
+      address:    String(r[C.ADDRESS-1]     || ''),
+      shipFee:    r[C.SHIP_FEE-1]    || '',
+      price:      r[C.PRICE-1]       || 0,
+      grandTotal: r[C.GRAND_TOTAL-1] || '',
+      status:     String(r[C.STATUS-1]      || ''),
     });
   }
   return jsonResp({ status: 'ok', rows });
 }
 
+// ─── Check status (customer) ─────────────────────────────────────────────────
 function handleCheckStatus(payload) {
   const q = String(payload.q || '').trim();
   if (!q) return jsonResp({ status: 'ok', rows: [] });
@@ -131,30 +199,35 @@ function handleCheckStatus(payload) {
   const rows = [];
   for (let i = 1; i < data.length; i++) {
     const r = data[i];
-    const name = String(r[COL.BUYER_NAME-1] || '').toLowerCase();
-    const phone = String(r[COL.PHONE-1] || '');
-    if (name.includes(ql) || phone.includes(q)) {
+    if (!r[C.ORDER_ID - 1]) continue;
+    const name  = String(r[C.BUYER_NAME-1] || '').toLowerCase();
+    const phone = String(r[C.PHONE-1]      || '');
+    // match with or without leading 0
+    const phoneAlt = phone.startsWith('0') ? phone.slice(1) : '0' + phone;
+    if (name.includes(ql) || phone.includes(q) || phoneAlt.includes(q)) {
       rows.push({
-        rowIndex: i + 1,
-        orderId: String(r[COL.ORDER_ID-1] || ''),
-        buyerName: String(r[COL.BUYER_NAME-1] || ''),
-        phone: String(r[COL.PHONE-1] || ''),
-        delivery: String(r[COL.DELIVERY-1] || ''),
-        address: String(r[COL.ADDRESS-1] || ''),
-        grandTotal: r[COL.GRAND_TOTAL-1] || 0,
-        entryIndex: r[COL.ENTRY_INDEX-1] || '',
-        forWhom: String(r[COL.FOR_WHOM-1] || ''),
-        team: String(r[COL.TEAM-1] || ''),
-        division: String(r[COL.DIVISION-1] || ''),
-        color: String(r[COL.COLOR-1] || ''),
-        size: String(r[COL.SIZE-1] || ''),
-        status: String(r[COL.STATUS-1] || ''),
+        rowIndex:   i + 1,
+        orderId:    String(r[C.ORDER_ID-1]    || ''),
+        buyerName:  String(r[C.BUYER_NAME-1]  || ''),
+        phone:      String(r[C.PHONE-1]       || ''),
+        entryNo:    r[C.ENTRY_NO-1]    || '',
+        forWhom:    String(r[C.FOR_WHOM-1]    || ''),
+        team:       String(r[C.TEAM-1]        || ''),
+        division:   String(r[C.DIVISION-1]    || ''),
+        navySize:   String(r[C.NAVY_SIZE-1]   || ''),
+        whiteSize:  String(r[C.WHITE_SIZE-1]  || ''),
+        qty:        r[C.QTY-1]         || 0,
+        delivery:   String(r[C.DELIVERY-1]    || ''),
+        address:    String(r[C.ADDRESS-1]     || ''),
+        grandTotal: r[C.GRAND_TOTAL-1] || '',
+        status:     String(r[C.STATUS-1]      || ''),
       });
     }
   }
   return jsonResp({ status: 'ok', rows });
 }
 
+// ─── Helper ───────────────────────────────────────────────────────────────────
 function jsonResp(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);

@@ -149,8 +149,9 @@ select.status-sel { padding: 4px 6px; border: 1.5px solid var(--line); border-ra
               <th>สำหรับ</th>
               <th>ทีม</th>
               <th>รุ่น</th>
-              <th>สี</th>
-              <th>ไซส์</th>
+              <th>สีกรม</th>
+              <th>สีขาว</th>
+              <th>จำนวน</th>
               <th>สถานะ</th>
             </tr>
           </thead>
@@ -208,9 +209,10 @@ async function loadData() {
 
 function renderStats() {
   const orders = [...new Set(allRows.map(r => r.orderId))];
+  const totalShirts = allRows.reduce((s, r) => s + (parseInt(r.qty) || 0), 0);
   document.getElementById('st-total').textContent = orders.length;
-  document.getElementById('st-shirts').textContent = allRows.length;
-  document.getElementById('st-pending').textContent = allRows.filter(r => r.status === 'ยังไม่รับ' || !r.status).length;
+  document.getElementById('st-shirts').textContent = totalShirts;
+  document.getElementById('st-pending').textContent = allRows.filter(r => r.status === 'ยังไม่รับ').length;
   document.getElementById('st-received').textContent = allRows.filter(r => r.status === 'รับแล้ว').length;
 }
 
@@ -224,21 +226,37 @@ function showSumTab(tab) {
 
 function renderSummary() {
   const groups = {};
-  allRows.forEach(r => {
-    const key = currentSumTab === 'team' ? r.team : currentSumTab === 'div' ? r.division : ('สี' + r.color);
-    if (!groups[key]) groups[key] = { total: 0, pending: 0, received: 0, shipped: 0 };
-    groups[key].total++;
-    if (r.delivery === 'ship') groups[key].shipped++;
-    else if (r.status === 'รับแล้ว') groups[key].received++;
-    else groups[key].pending++;
-  });
+  // For color tab: expand into virtual per-color rows
+  if (currentSumTab === 'color') {
+    allRows.forEach(r => {
+      [['สีกรม', r.navySize], ['สีขาว', r.whiteSize]].forEach(([colorLabel, sz]) => {
+        if (!sz) return;
+        if (!groups[colorLabel]) groups[colorLabel] = { total: 0, pending: 0, received: 0, shipped: 0 };
+        groups[colorLabel].total++;
+        if (r.delivery === 'จัดส่ง') groups[colorLabel].shipped++;
+        else if (r.status === 'รับแล้ว') groups[colorLabel].received++;
+        else groups[colorLabel].pending++;
+      });
+    });
+  } else {
+    allRows.forEach(r => {
+      const key = currentSumTab === 'team' ? (r.team || '-') : (r.division || '-');
+      const qty = parseInt(r.qty) || 0;
+      if (!groups[key]) groups[key] = { total: 0, pending: 0, received: 0, shipped: 0 };
+      groups[key].total += qty;
+      if (r.delivery === 'จัดส่ง') groups[key].shipped += qty;
+      else if (r.status === 'รับแล้ว') groups[key].received += qty;
+      else groups[key].pending += qty;
+    });
+  }
   const head = document.getElementById('sum-head');
   const body = document.getElementById('sum-body');
   const label = currentSumTab === 'team' ? 'ทีม' : currentSumTab === 'div' ? 'รุ่น' : 'สี';
-  head.innerHTML = `<tr><th>${label}</th><th class="num">ทั้งหมด</th><th class="num">รับที่โรงยิม</th><th class="num">รับแล้ว</th><th class="num">ส่งที่บ้าน</th></tr>`;
+  head.innerHTML = `<tr><th>${label}</th><th class="num">ตัวรวม</th><th class="num">รับที่โรงยิม</th><th class="num">รับแล้ว</th><th class="num">ส่งที่บ้าน</th></tr>`;
+  const totalShirts = allRows.reduce((s, r) => s + (parseInt(r.qty)||0), 0);
   body.innerHTML = Object.entries(groups).map(([k, v]) =>
-    `<tr><td>${k || '-'}</td><td class="num">${v.total}</td><td class="num">${v.pending}</td><td class="num navy-txt">${v.received}</td><td class="num">${v.shipped}</td></tr>`
-  ).join('') + `<tr style="font-weight:700;background:#f0f4ff;"><td>รวม</td><td class="num">${allRows.length}</td><td class="num">${allRows.filter(r=>r.delivery!=='ship'&&r.status!=='รับแล้ว').length}</td><td class="num navy-txt">${allRows.filter(r=>r.status==='รับแล้ว').length}</td><td class="num">${allRows.filter(r=>r.delivery==='ship').length}</td></tr>`;
+    `<tr><td>${k}</td><td class="num">${v.total}</td><td class="num">${v.pending}</td><td class="num navy-txt">${v.received}</td><td class="num">${v.shipped}</td></tr>`
+  ).join('') + `<tr style="font-weight:700;background:#f0f4ff;"><td>รวม</td><td class="num">${totalShirts}</td><td class="num">${allRows.filter(r=>r.delivery!=='จัดส่ง'&&r.status!=='รับแล้ว').reduce((s,r)=>s+(parseInt(r.qty)||0),0)}</td><td class="num navy-txt">${allRows.filter(r=>r.status==='รับแล้ว').reduce((s,r)=>s+(parseInt(r.qty)||0),0)}</td><td class="num">${allRows.filter(r=>r.delivery==='จัดส่ง').reduce((s,r)=>s+(parseInt(r.qty)||0),0)}</td></tr>`;
 }
 
 function renderOrders() {
@@ -261,25 +279,27 @@ function renderOrders() {
     document.getElementById('orders-table').style.display = 'table';
     document.getElementById('orders-empty').style.display = 'none';
     tbody.innerHTML = filtered.map((r, i) => {
-      const isShip = r.delivery === 'ship';
+      const isShip = r.delivery === 'จัดส่ง';
       const st = isShip ? 'ส่งที่บ้าน' : (r.status || 'ยังไม่รับ');
-      const badgeCls = st === 'รับแล้ว' ? 'badge-received' : st === 'ส่งที่บ้าน' ? 'badge-shipped' : 'badge-pending';
       const statusCell = isShip
         ? `<span class="badge badge-shipped">ส่งที่บ้าน</span>`
         : `<select class="status-sel" onchange="updateStatus('${r.rowIndex}','${r.orderId}',this.value,this)">
             <option value="ยังไม่รับ" ${st==='ยังไม่รับ'?'selected':''}>ยังไม่รับ</option>
             <option value="รับแล้ว" ${st==='รับแล้ว'?'selected':''}>รับแล้ว ✅</option>
           </select>`;
+      const navyLabel = r.navySize ? `กรม/${r.navySize}` : '-';
+      const whiteLabel = r.whiteSize ? `ขาว/${r.whiteSize}` : '-';
       return `<tr>
         <td style="white-space:nowrap;font-size:0.75rem;color:var(--muted);">${i+1}</td>
         <td><strong>${r.buyerName||'-'}</strong></td>
         <td>${r.phone||'-'}</td>
-        <td style="text-align:center;">${r.entryIndex||'-'}</td>
+        <td style="text-align:center;">${r.entryNo||'-'}</td>
         <td>${r.forWhom||'-'}</td>
         <td>${r.team||'-'}</td>
         <td>${r.division||'-'}</td>
-        <td>${r.color ? 'สี'+r.color : '-'}</td>
-        <td><strong>${r.size||'-'}</strong></td>
+        <td>${navyLabel}</td>
+        <td>${whiteLabel}</td>
+        <td style="text-align:center;">${r.qty||0}</td>
         <td class="status-cell">${statusCell}</td>
       </tr>`;
     }).join('');

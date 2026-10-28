@@ -102,20 +102,24 @@ async function doSearch() {
     });
     area.innerHTML = Object.values(orders).map(o => {
       const r = o.info;
-      const dlv = r.delivery === 'ship' ? `📦 จัดส่งถึงบ้าน<br><small>${r.address||''}</small>` : '🤝 รับด้วยตัวเอง';
+      const dlv = r.delivery === 'จัดส่ง' ? `📦 จัดส่งถึงบ้าน<br><small>${r.address||''}</small>` : '🤝 รับด้วยตัวเอง';
       const entries = o.entries.map((e, i) => {
-        const isShip = e.delivery === 'ship';
+        const isShip = e.delivery === 'จัดส่ง';
         const st = isShip ? 'ส่งที่บ้าน' : (e.status || 'ยังไม่รับ');
         const badgeCls = st === 'รับแล้ว' ? 'badge-received' : st === 'ส่งที่บ้าน' ? 'badge-shipped' : 'badge-pending';
+        const shirtDetails = [
+          e.navySize ? `กรม/${e.navySize}` : '',
+          e.whiteSize ? `ขาว/${e.whiteSize}` : '',
+        ].filter(Boolean).join(', ') || '-';
         return `<div class="entry-row">
           <div class="en-head">
-            <span class="en-num">ตัวที่ ${e.entryIndex||i+1}</span>
+            <span class="en-num">ตัวที่ ${e.entryNo||i+1}</span>
             <span class="badge ${badgeCls}">${st}</span>
           </div>
           <div class="en-body">
             ${e.forWhom ? `<strong>สำหรับ:</strong> ${e.forWhom}<br>` : ''}
             <strong>ทีม:</strong> ${e.team||'-'} &nbsp; <strong>รุ่น:</strong> ${e.division||'-'}<br>
-            <strong>สี:</strong> สี${e.color||'-'} &nbsp; <strong>ไซส์:</strong> ${e.size||'-'}
+            <strong>เสื้อ:</strong> ${shirtDetails}
           </div>
         </div>`;
       }).join('');
