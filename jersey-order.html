@@ -737,7 +737,7 @@ const colorOk = navyOn || whiteOn;
     const data = await resp.json();
     if (data.status !== 'ok') throw new Error(data.message || 'Error');
     document.getElementById('modal-msg').textContent =
-      `ขอบคุณ ${buyerName} ที่สั่งซื้อ! รวม ${totalQty} ตัว + ค่าส่ง = ${grandTotal.toLocaleString()} ฿ ทีมงานจะติดต่อกลับทาง LINE: ${lineId}`;
+      `ขอบคุณ ${buyerName} ที่สั่งซื้อ! รวม ${totalQty} ตัว + ค่าส่ง = ${grandTotal.toLocaleString()} ฿`;
     document.getElementById('modal-success').classList.add('open');
     btn.textContent = '✅ ส่งสำเร็จแล้ว';
   } catch(e) {
