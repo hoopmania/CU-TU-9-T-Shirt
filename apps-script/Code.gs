@@ -133,10 +133,9 @@ function handleOrder(payload) {
 
   if (rows.length > 0) {
     const firstRow = sheet.getLastRow() + 1;
-    const range = sheet.getRange(firstRow, 1, rows.length, NUM_COLS);
-    range.setValues(rows);
-    // Force phone column to text
+    // Set phone column to text BEFORE writing values, so Sheets doesn't strip leading 0
     sheet.getRange(firstRow, C.PHONE, rows.length, 1).setNumberFormat('@');
+    sheet.getRange(firstRow, 1, rows.length, NUM_COLS).setValues(rows);
   }
 
   return jsonResp({ status: 'ok', orderId });
