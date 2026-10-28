@@ -282,7 +282,7 @@ textarea { min-height: 72px; resize: vertical; }
     <div class="modal-icon">✅</div>
     <h3>ส่งคำสั่งซื้อสำเร็จ!</h3>
     <p id="modal-msg"></p>
-    <button class="modal-close" onclick="document.getElementById('modal-success').classList.remove('open')">ปิด</button>
+    <button class="modal-close" onclick="resetForm()">สั่งซื้อเพิ่ม / ปิด</button>
   </div>
 </div>
 
@@ -604,6 +604,41 @@ async function submitOrder() {
     btn.disabled = false; btn.textContent = 'ส่งคำสั่งซื้อ';
     alert('เกิดข้อผิดพลาด: ' + err.message + '\nกรุณาลองใหม่อีกครั้ง');
   }
+}
+
+function resetForm() {
+  document.getElementById('modal-success').classList.remove('open');
+  // Reset buyer info
+  ['buyer-name','phone','line-id','note'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  // Clear entries
+  document.getElementById('entries').innerHTML = '';
+  entryCount = 0;
+  // Reset delivery
+  document.querySelectorAll('input[name="delivery"]').forEach(r => r.checked = false);
+  document.getElementById('address-wrap').style.display = 'none';
+  document.getElementById('address').value = '';
+  document.getElementById('dlv-pickup-label').classList.remove('selected');
+  document.getElementById('dlv-ship-label').classList.remove('selected');
+  // Reset slip
+  document.getElementById('slip-input').value = '';
+  document.getElementById('slip-preview').style.display = 'none';
+  document.getElementById('slip-label-txt').textContent = 'แตะเพื่อเลือกรูปสลิป';
+  // Reset summary
+  document.getElementById('summary-section').style.display = 'none';
+  // Clear all errors
+  document.querySelectorAll('.err').forEach(e => e.classList.remove('show'));
+  document.querySelectorAll('.invalid').forEach(e => e.classList.remove('invalid'));
+  // Re-enable submit
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = false;
+  btn.textContent = 'ส่งคำสั่งซื้อ';
+  orderSubmitted = false;
+  // Add first entry and scroll to top
+  addEntry();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Init with one entry
