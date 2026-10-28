@@ -25,15 +25,17 @@ const C = {
   GRAND_TOTAL: 17,  // ยอดรวม
   STATUS:      18,  // สถานะ
   NOTE:        19,  // หมายเหตุ
+  SLIP_URL:    20,  // ลิงค์สลิป
 };
-const NUM_COLS = 19;
+const NUM_COLS = 20;
+const SLIP_FOLDER_NAME = 'CU-TU-9-Slips';
 
 const HEADERS = [
   'วันที่','เลขออร์เดอร์','ชื่อผู้สั่ง','โทร','LINE ID',
   'ตัวที่','สำหรับ','ทีม','รุ่น',
   'สีกรม — ไซส์','สีขาว — ไซส์','จำนวนตัว',
   'วิธีรับ','ที่อยู่จัดส่ง','ค่าส่ง','ยอดเสื้อ','ยอดรวม',
-  'สถานะ','หมายเหตุ'
+  'สถานะ','หมายเหตุ','ลิงค์สลิป'
 ];
 
 function doPost(e) {
@@ -108,6 +110,24 @@ function handleOrder(payload) {
   const ts = new Date();
   const orderId = String(payload.orderId || ('CU' + ts.getTime().toString().slice(-8)));
   const entries = payload.entries || [];
+
+  // Upload slip to Drive (first row only)
+  let slipUrl = '';
+  if (payload.slipBase64) {
+    try {
+      const base64 = String(payload.slipBase64).replace(/^data:[^;]+;base64,/, '');
+      const ext = (payload.slipFileName || 'slip.jpg').split('.').pop().toLowerCase();
+      const mime = ext === 'png' ? 'image/png' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
+      const blob = Utilities.newBlob(Utilities.base64Decode(base64), mime, orderId + '_slip.' + ext);
+      const folders = DriveApp.getFoldersByName(SLIP_FOLDER_NAME);
+      const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(SLIP_FOLDER_NAME);
+      const file = folder.createFile(blob);
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      slipUrl = file.getUrl();
+    } catch(e) {
+      Logger.log('Slip upload error: ' + e.message);
+    }
+  }
   const isShip = payload.delivery === 'ship';
   const shippingFee = isShip ? (payload.shippingFee || 50) : 0;
 
@@ -141,6 +161,7 @@ function handleOrder(payload) {
     row[C.GRAND_TOTAL - 1] = isFirstRow ? (payload.grandTotal || 0) : '';
     row[C.STATUS      - 1] = 'รับคำสั่งซื้อแล้ว';
     row[C.NOTE        - 1] = isFirstRow ? String(payload.note || '') : '';
+    row[C.SLIP_URL    - 1] = isFirstRow ? slipUrl : '';
     rows.push(row);
   });
 
