@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Picking List — CU-TU #9</title>
+<style>
+:root {
+  --navy: #0a1f5c; --navy2: #1a3a9c;
+  --paper: #f5f5f5; --card: #fff; --ink: #1a1a1a;
+  --muted: #666; --line: #e0e0e0; --radius: 10px;
+  --success: #2f7d4f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun','Noto Sans Thai',sans-serif; background: var(--paper); color: var(--ink); font-size: 15px; padding-bottom: 60px; }
+.header { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; padding: 16px 20px; }
+.header h1 { font-size: 1.1rem; font-weight: 700; }
+.header p { font-size: 0.82rem; opacity: 0.8; margin-top: 3px; }
+.container { max-width: 820px; margin: 0 auto; padding: 0 14px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-top: 14px; box-shadow: 0 1px 5px rgba(0,0,0,.07); }
+.card h2 { font-size: 0.95rem; font-weight: 700; color: var(--navy); border-left: 4px solid var(--navy); padding-left: 9px; margin-bottom: 14px; }
+input[type="password"] { padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 7px; font-size: 0.95rem; font-family: inherit; width: 100%; }
+.btn { display: inline-block; padding: 9px 20px; background: var(--navy); color: #fff; border: none; border-radius: 7px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; }
+.btn-green { background: var(--success); margin-left: 8px; }
+.filter-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.filter-row select, .filter-row input { padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 7px; font-family: inherit; font-size: 0.88rem; }
+.filter-row input { flex: 1; min-width: 160px; }
+
+/* Order card */
+.order-card { border: 1.5px solid var(--line); border-radius: 8px; margin-bottom: 14px; overflow: hidden; }
+.order-head { background: #f0f4ff; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: space-between; align-items: flex-start; }
+.order-head .id { font-weight: 700; font-size: 0.88rem; color: var(--navy); }
+.order-head .buyer { font-size: 0.9rem; font-weight: 700; }
+.order-head .meta { font-size: 0.82rem; color: var(--muted); }
+.order-head .addr { font-size: 0.82rem; margin-top: 4px; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; }
+.badge-ship { background: #cfe2ff; color: #0d47a1; }
+.badge-pickup { background: #d1e7dd; color: var(--success); }
+table.pick-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.pick-table th { background: #f8f8f8; padding: 7px 10px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--line); color: #444; }
+.pick-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.pick-table tr:last-child td { border-bottom: none; }
+.sizes { display: flex; gap: 5px; flex-wrap: wrap; }
+.size-chip { padding: 2px 9px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; }
+.navy-chip { background: #0a1f5c; color: #fff; }
+.white-chip { background: #fff; color: #333; border: 1.5px solid #bbb; }
+.check-box { width: 20px; height: 20px; border: 2px solid var(--line); border-radius: 4px; cursor: pointer; display: inline-block; text-align: center; line-height: 18px; font-size: 14px; user-select: none; }
+.check-box.done { background: var(--success); border-color: var(--success); color: #fff; }
+.stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.stat { background: #f0f4ff; border-radius: 7px; padding: 8px 14px; text-align: center; }
+.stat .num { font-size: 1.3rem; font-weight: 700; color: var(--navy); display: block; }
+.stat .lbl { font-size: 0.75rem; color: var(--muted); }
+.nav-links { text-align: center; margin-top: 16px; font-size: 0.83rem; }
+.nav-links a { color: var(--navy); margin: 0 10px; }
+@media print {
+  .header, .no-print { display: none; }
+  body { background: #fff; font-size: 12px; }
+  .card { box-shadow: none; }
+  .order-card { break-inside: avoid; margin-bottom: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📦 Picking List</h1>
+  <p>CU-TU Basketball Alumni #9 — รายการหยิบเสื้อ</p>
+</div>
+
+<div class="container">
+  <div class="card" id="login-card">
+    <h2>เข้าสู่ระบบ Admin</h2>
+    <input type="password" id="pass" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')login()">
+    <br><button class="btn" onclick="login()">เข้าสู่ระบบ</button>
+    <p id="err" style="color:red;font-size:0.85rem;margin-top:8px;"></p>
+  </div>
+
+  <div id="main-content" style="display:none;">
+    <div class="card no-print">
+      <div class="filter-row">
+        <input type="text" id="search-box" placeholder="ค้นหาชื่อ / โทร / ออร์เดอร์..." oninput="renderList()">
+        <select id="filter-delivery" onchange="renderList()">
+          <option value="">ทุกวิธีรับ</option>
+          <option value="จัดส่ง">จัดส่ง</option>
+          <option value="รับเอง">รับเอง</option>
+        </select>
+      </div>
+      <div class="stats-row" id="stats-row"></div>
+    </div>
+
+    <div id="order-list"></div>
+
+    <div class="card no-print" style="text-align:center;">
+      <button class="btn btn-green" onclick="window.print()">🖨️ พิมพ์ / บันทึก PDF</button>
+    </div>
+
+    <div class="nav-links no-print">
+      <a href="checkin.html">Admin: เช็คชื่อรับชุด</a>
+      <a href="summary.html">สรุปจำนวนสั่งผลิต</a>
+      <a href="report.html">รายงานยอดขาย</a>
+      <a href="jersey-order.html">ฟอร์มสั่งซื้อ</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyahqzPFMiJGktwRGaOoBQsFRrS4iIVqkWSUCcAJg0wG5G_8D6UesqOvylcABj1JeNI/exec';
+const ADMIN_PASS = 'cutuba9';
+let allRows = [];
+
+function login() {
+  const pass = document.getElementById('pass').value;
+  if (pass !== ADMIN_PASS) { document.getElementById('err').textContent = 'รหัสผ่านไม่ถูกต้อง'; return; }
+  document.getElementById('login-card').style.display = 'none';
+  document.getElementById('main-content').style.display = '';
+  loadData();
+}
+
+async function loadData() {
+  document.getElementById('order-list').innerHTML = '<p style="color:var(--muted);padding:16px 0;">กำลังโหลด...</p>';
+  try {
+    const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getOrders', pass: ADMIN_PASS }) });
+    const data = await resp.json();
+    if (data.status !== 'ok') throw new Error(data.message);
+    allRows = data.rows || [];
+    renderList();
+  } catch(e) {
+    document.getElementById('order-list').innerHTML = '<p style="color:red;">โหลดข้อมูลไม่ได้: ' + e.message + '</p>';
+  }
+}
+
+function renderList() {
+  const q = document.getElementById('search-box').value.toLowerCase();
+  const dlv = document.getElementById('filter-delivery').value;
+
+  // Group by orderId
+  const orders = {};
+  allRows.forEach(r => {
+    if (!orders[r.orderId]) orders[r.orderId] = { info: r, entries: [] };
+    orders[r.orderId].entries.push(r);
+  });
+
+  let orderArr = Object.values(orders).filter(o => {
+    const r = o.info;
+    const matchQ = !q || (r.buyerName||'').toLowerCase().includes(q)
+      || (r.phone||'').includes(q) || (r.orderId||'').toLowerCase().includes(q);
+    const matchD = !dlv || r.delivery === dlv;
+    return matchQ && matchD;
+  });
+
+  // Stats
+  const totalOrders = orderArr.length;
+  const totalShirts = orderArr.reduce((s,o) => s + o.entries.reduce((a,r)=>a+(parseInt(r.qty)||0),0), 0);
+  const shipOrders = orderArr.filter(o => o.info.delivery === 'จัดส่ง').length;
+  const pickupOrders = totalOrders - shipOrders;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat"><span class="num">${totalOrders}</span><span class="lbl">ออร์เดอร์</span></div>
+    <div class="stat"><span class="num">${totalShirts}</span><span class="lbl">ตัวรวม</span></div>
+    <div class="stat"><span class="num">${shipOrders}</span><span class="lbl">จัดส่ง</span></div>
+    <div class="stat"><span class="num">${pickupOrders}</span><span class="lbl">รับเอง</span></div>`;
+
+  const el = document.getElementById('order-list');
+  if (orderArr.length === 0) { el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:24px;">ไม่มีข้อมูล</p>'; return; }
+
+  el.innerHTML = orderArr.map(o => {
+    const r = o.info;
+    const isShip = r.delivery === 'จัดส่ง';
+    const badge = isShip ? '<span class="badge badge-ship">📦 จัดส่ง</span>' : '<span class="badge badge-pickup">🤝 รับเอง</span>';
+    const addrLine = isShip && r.address ? `<div class="addr">📍 ${r.address}</div>` : '';
+    const totalQty = o.entries.reduce((s,e)=>s+(parseInt(e.qty)||0),0);
+
+    const rows = o.entries.map((e,i) => {
+      const chips = [];
+      if (e.navySize) chips.push(`<span class="size-chip navy-chip">กรม ${e.navySize}</span>`);
+      if (e.whiteSize) chips.push(`<span class="size-chip white-chip">ขาว ${e.whiteSize}</span>`);
+      return `<tr>
+        <td style="width:32px;text-align:center;"><span class="check-box no-print" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':''"> </span></td>
+        <td>${e.entryNo || i+1}</td>
+        <td>${e.forWhom || '—'}</td>
+        <td>${e.team || '—'}</td>
+        <td>${e.division || '—'}</td>
+        <td><div class="sizes">${chips.join('')}</div></td>
+        <td style="text-align:center;">${e.qty || 0}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="order-card">
+      <div class="order-head">
+        <div>
+          <div class="id">${r.orderId} ${badge}</div>
+          <div class="buyer">${r.buyerName}</div>
+          <div class="meta">📞 ${r.phone} &nbsp;|&nbsp; LINE: ${r.lineId || '—'}</div>
+          ${addrLine}
+        </div>
+        <div style="text-align:right;font-size:0.82rem;color:var(--muted);">
+          <div>${totalQty} ตัว</div>
+          <div>ยอดรวม ${(r.grandTotal||0).toLocaleString()} ฿</div>
+        </div>
+      </div>
+      <table class="pick-table">
+        <thead><tr>
+          <th style="width:32px;"></th>
+          <th style="width:42px;">#</th>
+          <th>สำหรับ</th>
+          <th>ทีม</th>
+          <th>รุ่น</th>
+          <th>เสื้อ</th>
+          <th style="width:50px;text-align:center;">ตัว</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

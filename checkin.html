@@ -131,9 +131,14 @@ select.status-sel { padding: 4px 6px; border: 1.5px solid var(--line); border-ra
         <input type="text" id="search-box" placeholder="ค้นหาชื่อ / โทร..." oninput="renderOrders()">
         <select id="filter-status" onchange="renderOrders()" style="padding:9px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.9rem;">
           <option value="">ทุกสถานะ</option>
-          <option value="ยังไม่รับ">ยังไม่รับ</option>
-          <option value="รับแล้ว">รับแล้ว</option>
-          <option value="ส่งที่บ้าน">ส่งที่บ้าน</option>
+          <option value="รับคำสั่งซื้อแล้ว">รับคำสั่งซื้อแล้ว</option>
+          <option value="ส่งคำสั่งซื้อไปโรงงาน">ส่งคำสั่งซื้อไปโรงงาน</option>
+          <option value="โรงงานกำลังผลิต">โรงงานกำลังผลิต</option>
+          <option value="ผลิตเสร็จแล้ว">ผลิตเสร็จแล้ว</option>
+          <option value="อยู่ในระหว่างจัดส่ง">อยู่ในระหว่างจัดส่ง</option>
+          <option value="จัดส่งเรียบร้อยแล้ว">จัดส่งเรียบร้อยแล้ว</option>
+          <option value="อยู่ในระหว่างนัดรับ">อยู่ในระหว่างนัดรับ</option>
+          <option value="รับเสื้อเรียบร้อยแล้ว">รับเสื้อเรียบร้อยแล้ว</option>
         </select>
         <button class="btn btn-outline btn-sm" onclick="loadData()">🔄</button>
       </div>
@@ -165,6 +170,8 @@ select.status-sel { padding: 4px 6px; border: 1.5px solid var(--line); border-ra
 </div>
 
   <div style="text-align:center;margin-top:16px;font-size:0.83rem;">
+    <a href="summary.html" style="color:var(--navy);margin:0 10px;">สรุปจำนวนสั่งผลิต</a>
+    <a href="picking.html" style="color:var(--navy);margin:0 10px;">Picking List</a>
     <a href="report.html" style="color:var(--navy);margin:0 10px;">รายงานยอดขาย</a>
     <a href="status.html" style="color:var(--navy);margin:0 10px;">เช็คสถานะ (ลูกค้า)</a>
     <a href="jersey-order.html" style="color:var(--navy);margin:0 10px;">ฟอร์มสั่งซื้อ</a>
@@ -280,13 +287,11 @@ function renderOrders() {
     document.getElementById('orders-empty').style.display = 'none';
     tbody.innerHTML = filtered.map((r, i) => {
       const isShip = r.delivery === 'จัดส่ง';
-      const st = isShip ? 'ส่งที่บ้าน' : (r.status || 'ยังไม่รับ');
-      const statusCell = isShip
-        ? `<span class="badge badge-shipped">ส่งที่บ้าน</span>`
-        : `<select class="status-sel" onchange="updateStatus('${r.rowIndex}','${r.orderId}',this.value,this)">
-            <option value="ยังไม่รับ" ${st==='ยังไม่รับ'?'selected':''}>ยังไม่รับ</option>
-            <option value="รับแล้ว" ${st==='รับแล้ว'?'selected':''}>รับแล้ว ✅</option>
-          </select>`;
+      const st = r.status || 'รับคำสั่งซื้อแล้ว';
+      const shipOpts = ['รับคำสั่งซื้อแล้ว','ส่งคำสั่งซื้อไปโรงงาน','โรงงานกำลังผลิต','ผลิตเสร็จแล้ว','อยู่ในระหว่างจัดส่ง','จัดส่งเรียบร้อยแล้ว'];
+      const pickOpts = ['รับคำสั่งซื้อแล้ว','ส่งคำสั่งซื้อไปโรงงาน','โรงงานกำลังผลิต','ผลิตเสร็จแล้ว','อยู่ในระหว่างนัดรับ','รับเสื้อเรียบร้อยแล้ว'];
+      const opts = (isShip ? shipOpts : pickOpts).map(v=>`<option value="${v}" ${st===v?'selected':''}>${v}</option>`).join('');
+      const statusCell = `<select class="status-sel" onchange="updateStatus('${r.rowIndex}','${r.orderId}',this.value,this)">${opts}</select>`;
       const navyLabel = r.navySize ? `กรม/${r.navySize}` : '-';
       const whiteLabel = r.whiteSize ? `ขาว/${r.whiteSize}` : '-';
       return `<tr>

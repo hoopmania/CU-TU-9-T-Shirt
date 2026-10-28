@@ -55,7 +55,8 @@ function doPost(e) {
         whiteOn: e.whiteOn, whiteSize: e.whiteSize,
       })),
     }));
-    return handleOrder(payload);
+    const result = handleOrder(payload);
+    return result;
   } catch (err) {
     return jsonResp({ status: 'error', message: String(err.message) });
   }
@@ -138,7 +139,7 @@ function handleOrder(payload) {
     row[C.SHIP_FEE    - 1] = isFirstRow && isShip ? shippingFee : '';
     row[C.PRICE       - 1] = entryPrice;
     row[C.GRAND_TOTAL - 1] = isFirstRow ? (payload.grandTotal || 0) : '';
-    row[C.STATUS      - 1] = isShip ? 'ส่งที่บ้าน' : 'ยังไม่รับ';
+    row[C.STATUS      - 1] = 'รับคำสั่งซื้อแล้ว';
     row[C.NOTE        - 1] = isFirstRow ? String(payload.note || '') : '';
     rows.push(row);
   });
@@ -150,7 +151,24 @@ function handleOrder(payload) {
     sheet.getRange(firstRow, 1, rows.length, NUM_COLS).setValues(rows);
   }
 
-  return jsonResp({ status: 'ok', orderId });
+  return jsonResp({
+    status: 'ok', orderId,
+    _debug: {
+      rowsWritten: rows.length,
+      payloadReceived: {
+        orderId: payload.orderId, buyerName: payload.buyerName,
+        phone: payload.phone, lineId: payload.lineId,
+        delivery: payload.delivery, shippingFee: payload.shippingFee,
+        grandTotal: payload.grandTotal,
+        entryCount: entries.length,
+        entry0: entries[0] ? {
+          forWhom: entries[0].forWhom, team: entries[0].team, division: entries[0].division,
+          navyOn: entries[0].navyOn, navySize: entries[0].navySize,
+          whiteOn: entries[0].whiteOn, whiteSize: entries[0].whiteSize,
+        } : null,
+      },
+    },
+  });
 }
 
 // ─── Update status ────────────────────────────────────────────────────────────
