@@ -276,14 +276,9 @@ textarea { min-height: 72px; resize: vertical; }
 
 </div>
 
-<!-- Success modal -->
-<div class="modal-overlay" id="modal-success">
-  <div class="modal">
-    <div class="modal-icon">✅</div>
-    <h3>ส่งคำสั่งซื้อสำเร็จ!</h3>
-    <p id="modal-msg"></p>
-    <button class="modal-close" onclick="resetForm()">สั่งซื้อเพิ่ม / ปิด</button>
-  </div>
+<!-- Success toast -->
+<div id="success-toast" style="display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:#2f7d4f;color:#fff;padding:14px 18px;text-align:center;font-size:0.92rem;font-weight:700;line-height:1.5;">
+  ✅ ส่งคำสั่งซื้อสำเร็จ! <span id="toast-msg" style="font-weight:400;"></span>
 </div>
 
 <!-- Size chart modal -->
@@ -588,17 +583,17 @@ async function submitOrder() {
     if (data.status !== 'ok') throw new Error(data.message || 'Error');
 
     const lines = [];
-    entries.forEach((e, i) => {
-      const tag = e.forWhom ? ` สำหรับ ${e.forWhom}` : '';
-      if (e.navyOn && e.navySize) lines.push(`สีกรม ไซส์ ${e.navySize}${tag}`);
-      if (e.whiteOn && e.whiteSize) lines.push(`สีขาว ไซส์ ${e.whiteSize}${tag}`);
+    entries.forEach((e) => {
+      const tag = e.forWhom ? ` (${e.forWhom})` : '';
+      if (e.navyOn && e.navySize) lines.push(`สีกรม ${e.navySize}${tag}`);
+      if (e.whiteOn && e.whiteSize) lines.push(`สีขาว ${e.whiteSize}${tag}`);
     });
-    document.getElementById('modal-msg').innerHTML =
-      `ขอบคุณ <strong>${buyerName}</strong>!<br><br>` +
-      lines.join('<br>') +
-      `<br><br>ยอดรวม: <strong>${grandTotal.toLocaleString()} ฿</strong>`;
-    document.getElementById('modal-success').classList.add('open');
-    btn.textContent = '✅ ส่งสำเร็จแล้ว';
+    document.getElementById('toast-msg').textContent =
+      `${buyerName} — ${lines.join(', ')} — รวม ${grandTotal.toLocaleString()} ฿`;
+    const toast = document.getElementById('success-toast');
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 6000);
+    resetForm();
   } catch(err) {
     orderSubmitted = false;
     btn.disabled = false; btn.textContent = 'ส่งคำสั่งซื้อ';
@@ -607,7 +602,6 @@ async function submitOrder() {
 }
 
 function resetForm() {
-  document.getElementById('modal-success').classList.remove('open');
   // Reset buyer info
   ['buyer-name','phone','line-id','note'].forEach(id => {
     const el = document.getElementById(id);
