@@ -43,6 +43,18 @@ function doPost(e) {
     if (action === 'updateStatus') return handleUpdateStatus(payload);
     if (action === 'getOrders')    return handleGetOrders(payload);
     if (action === 'checkStatus')  return handleCheckStatus(payload);
+    // Debug log — remove after fixing
+    Logger.log('PAYLOAD: ' + JSON.stringify({
+      action, orderId: payload.orderId, buyerName: payload.buyerName,
+      phone: payload.phone, delivery: payload.delivery,
+      address: payload.address, shippingFee: payload.shippingFee,
+      grandTotal: payload.grandTotal,
+      entries: (payload.entries || []).map(e => ({
+        forWhom: e.forWhom, team: e.team, division: e.division,
+        navyOn: e.navyOn, navySize: e.navySize,
+        whiteOn: e.whiteOn, whiteSize: e.whiteSize,
+      })),
+    }));
     return handleOrder(payload);
   } catch (err) {
     return jsonResp({ status: 'error', message: String(err.message) });
