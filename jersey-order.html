@@ -186,9 +186,9 @@ textarea { min-height: 72px; resize: vertical; }
   <!-- Entries -->
   <div class="card">
     <h2>รายการเสื้อ</h2>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">สั่งได้หลายตัว — กด "+ เพิ่มอีกตัว" เพื่อสั่งให้คนอื่น หรือสั่งอีกสีอีกไซส์</p>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">สั่งได้หลายชุด — สองสีให้ tick ทั้งคู่ได้เลย กด "+ เพิ่มอีกชุด" เมื่อเป็นของคนอื่น หรือสีเดียวกันแต่คนละไซส์</p>
     <div class="entries" id="entries"></div>
-    <button class="btn-add" type="button" onclick="addEntry()">+ เพิ่มอีกตัว (สั่งให้เพื่อน / ตัวเอง)</button>
+    <button class="btn-add" type="button" onclick="addEntry()">+ เพิ่มอีกชุด (สั่งให้เพื่อน / สีเดียวกันแต่คนละไซส์)</button>
     <div class="err" id="err-entries" style="margin-top:8px;">กรุณาเพิ่มรายการเสื้ออย่างน้อย 1 ตัว</div>
   </div>
 
@@ -340,35 +340,47 @@ function addEntry() {
         </select>
         <div class="err" id="err-div-${id}">กรุณาเลือกรุ่นนักกีฬา</div>
       </div>
-      <div class="field">
-        <label class="field-label">สีเสื้อ <span class="req">*</span></label>
-        <div class="radio-group" id="color-group-${id}">
-          <label class="radio-opt" for="color-${id}-navy">
-            <input type="radio" name="color-${id}" id="color-${id}-navy" value="กรม" onchange="onColorChange(${id})">
-            <span class="swatch navy"></span>
-            <span class="ro-text">
-              <span class="ro-title">สีกรม (Chula)</span>
-              <span class="ro-sub">ผ้าฝ้ายเกรดพรีเมี่ยม — 300 ฿/ตัว</span>
-            </span>
-          </label>
-          <label class="radio-opt" for="color-${id}-white">
-            <input type="radio" name="color-${id}" id="color-${id}-white" value="ขาว" onchange="onColorChange(${id})">
-            <span class="swatch white"></span>
-            <span class="ro-text">
-              <span class="ro-title">สีขาว (Thammasat)</span>
-              <span class="ro-sub">ผ้าฝ้ายเกรดพรีเมี่ยม — 300 ฿/ตัว</span>
-            </span>
-          </label>
-        </div>
-        <div class="err" id="err-color-${id}">กรุณาเลือกสีเสื้อ</div>
-      </div>
       <div class="field" style="margin-bottom:4px;">
-        <label class="field-label" for="size-${id}">ไซส์เสื้อ <span class="req">*</span></label>
-        <select id="size-${id}" onchange="onSizeChange(${id})">
-          <option value="">-- เลือกไซส์ --</option>
-          ${SIZES.map(s => `<option>${s}</option>`).join('')}
-        </select>
-        <div class="err" id="err-size-${id}">⚠️ กรุณาเลือกไซส์ก่อน ไม่สามารถดำเนินการต่อได้</div>
+        <label class="field-label">สีเสื้อ &amp; ไซส์ <span class="req">*</span> <span style="font-weight:400;color:var(--muted);font-size:0.8rem;">เลือกได้มากกว่า 1 สี</span></label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <!-- Navy -->
+          <div id="color-navy-wrap-${id}">
+            <label class="radio-opt" for="chk-navy-${id}" style="cursor:pointer;">
+              <input type="checkbox" id="chk-navy-${id}" onchange="onColorToggle(${id},'navy')" style="width:18px;height:18px;accent-color:var(--navy);flex-shrink:0;">
+              <span class="swatch navy"></span>
+              <span class="ro-text">
+                <span class="ro-title">สีกรม (Chula)</span>
+                <span class="ro-sub">ผ้าฝ้ายเกรดพรีเมี่ยม — 300 ฿/ตัว</span>
+              </span>
+            </label>
+            <div id="size-navy-wrap-${id}" style="display:none;margin-top:6px;padding:0 4px;">
+              <select id="size-navy-${id}" onchange="onSizeChange(${id},'navy')">
+                <option value="">-- ไซส์สีกรม --</option>
+                ${SIZES.map(s => `<option>${s}</option>`).join('')}
+              </select>
+              <div class="err" id="err-size-navy-${id}">⚠️ กรุณาเลือกไซส์สีกรม</div>
+            </div>
+          </div>
+          <!-- White -->
+          <div id="color-white-wrap-${id}">
+            <label class="radio-opt" for="chk-white-${id}" style="cursor:pointer;">
+              <input type="checkbox" id="chk-white-${id}" onchange="onColorToggle(${id},'white')" style="width:18px;height:18px;accent-color:var(--navy);flex-shrink:0;">
+              <span class="swatch white"></span>
+              <span class="ro-text">
+                <span class="ro-title">สีขาว (Thammasat)</span>
+                <span class="ro-sub">ผ้าฝ้ายเกรดพรีเมี่ยม — 300 ฿/ตัว</span>
+              </span>
+            </label>
+            <div id="size-white-wrap-${id}" style="display:none;margin-top:6px;padding:0 4px;">
+              <select id="size-white-${id}" onchange="onSizeChange(${id},'white')">
+                <option value="">-- ไซส์สีขาว --</option>
+                ${SIZES.map(s => `<option>${s}</option>`).join('')}
+              </select>
+              <div class="err" id="err-size-white-${id}">⚠️ กรุณาเลือกไซส์สีขาว</div>
+            </div>
+          </div>
+        </div>
+        <div class="err" id="err-color-${id}">กรุณาเลือกสีเสื้ออย่างน้อย 1 สี</div>
       </div>
       <div class="entry-subtotal" id="entry-sub-${id}"></div>
     </div>
@@ -391,17 +403,25 @@ function onTeamChange(id) {
   clearErr('err-team-' + id, null);
 }
 
-function onColorChange(id) {
-  document.querySelectorAll(`[name="color-${id}"]`).forEach(r => {
-    r.closest('.radio-opt').classList.toggle('selected', r.checked);
-  });
-  clearErr('err-color-' + id, null);
+function onColorToggle(id, color) {
+  const chk = document.getElementById('chk-' + color + '-' + id);
+  const wrap = document.getElementById('size-' + color + '-wrap-' + id);
+  const label = chk.closest('.radio-opt');
+  label.classList.toggle('selected', chk.checked);
+  wrap.style.display = chk.checked ? 'block' : 'none';
+  if (!chk.checked) {
+    const sel = document.getElementById('size-' + color + '-' + id);
+    if (sel) sel.value = '';
+    clearErr('err-size-' + color + '-' + id, 'size-' + color + '-' + id);
+  }
+  const anyChecked = document.getElementById('chk-navy-'+id)?.checked || document.getElementById('chk-white-'+id)?.checked;
+  if (anyChecked) clearErr('err-color-' + id, null);
   updateSummary();
 }
 
-function onSizeChange(id) {
-  const el = document.getElementById('size-' + id);
-  if (el.value) clearErr('err-size-' + id, 'size-' + id);
+function onSizeChange(id, color) {
+  const sel = document.getElementById('size-' + color + '-' + id);
+  if (sel && sel.value) clearErr('err-size-' + color + '-' + id, 'size-' + color + '-' + id);
   updateSummary();
 }
 
@@ -417,50 +437,64 @@ function setErr(errId, show, inputId) {
   if (inputId) { const el = document.getElementById(inputId); if (el) { if (show) el.classList.add('invalid'); else el.classList.remove('invalid'); } }
 }
 
+// Returns array of cards; each card can have navy and/or white selected
 function getEntries() {
   return [...document.querySelectorAll('.entry-card')].map(card => {
     const id = card.id.replace('entry-', '');
     const teamEl = document.querySelector(`[name="team-${id}"]:checked`);
-    const colorEl = document.querySelector(`[name="color-${id}"]:checked`);
-    const sizeEl = document.getElementById('size-' + id);
     const divEl = document.getElementById('division-' + id);
     const forEl = document.getElementById('for-' + id);
+    const navyChk = document.getElementById('chk-navy-' + id);
+    const whiteChk = document.getElementById('chk-white-' + id);
+    const navySize = document.getElementById('size-navy-' + id)?.value || '';
+    const whiteSize = document.getElementById('size-white-' + id)?.value || '';
     return {
       id,
       forWhom: forEl ? forEl.value.trim() : '',
       team: teamEl ? teamEl.value : '',
       division: divEl ? divEl.value : '',
-      color: colorEl ? colorEl.value : '',
-      size: sizeEl ? sizeEl.value : '',
-      price: CONFIG.pricePerShirt,
+      navyOn: navyChk?.checked || false,
+      navySize,
+      whiteOn: whiteChk?.checked || false,
+      whiteSize,
     };
   });
+}
+
+function entryShirtCount(e) {
+  let n = 0;
+  if (e.navyOn && e.navySize) n++;
+  if (e.whiteOn && e.whiteSize) n++;
+  return n;
 }
 
 function updateSummary() {
   const entries = getEntries();
   const delivery = document.querySelector('input[name="delivery"]:checked')?.value;
   const isShip = delivery === 'ship';
-  const itemsTotal = entries.reduce((s, e) => s + (e.size && e.color ? e.price : 0), 0);
+  const itemsTotal = entries.reduce((s, e) => s + entryShirtCount(e) * CONFIG.pricePerShirt, 0);
   const shipping = isShip ? CONFIG.shippingFee : 0;
   const total = itemsTotal + shipping;
 
-  const hasEntries = entries.length > 0;
+  const hasEntries = entries.some(e => e.navyOn || e.whiteOn);
   document.getElementById('summary-section').style.display = hasEntries ? 'block' : 'none';
 
   const sumEl = document.getElementById('sum-entries');
   sumEl.innerHTML = entries.map(e => {
-    if (!e.color || !e.size) return '';
-    return `<div class="sum-row"><span>สี${e.color} ไซส์ ${e.size}${e.forWhom ? ' ('+e.forWhom+')' : ''}</span><span>${e.price.toLocaleString()} ฿</span></div>`;
+    const lines = [];
+    const tag = e.forWhom ? ` (${e.forWhom})` : '';
+    if (e.navyOn && e.navySize) lines.push(`<div class="sum-row"><span>สีกรม ไซส์ ${e.navySize}${tag}</span><span>${CONFIG.pricePerShirt.toLocaleString()} ฿</span></div>`);
+    if (e.whiteOn && e.whiteSize) lines.push(`<div class="sum-row"><span>สีขาว ไซส์ ${e.whiteSize}${tag}</span><span>${CONFIG.pricePerShirt.toLocaleString()} ฿</span></div>`);
+    return lines.join('');
   }).join('');
 
   document.getElementById('sum-ship-row').style.display = isShip ? 'flex' : 'none';
   document.getElementById('sum-total').textContent = total.toLocaleString() + ' ฿';
 
-  // update entry subtotals
   entries.forEach(e => {
     const el = document.getElementById('entry-sub-' + e.id);
-    if (el) el.textContent = (e.color && e.size) ? `รวม ${e.price.toLocaleString()} ฿` : '';
+    const cnt = entryShirtCount(e);
+    if (el) el.textContent = cnt > 0 ? `รวม ${(cnt * CONFIG.pricePerShirt).toLocaleString()} ฿` : '';
   });
 }
 
@@ -506,12 +540,14 @@ async function submitOrder() {
   if (!/^[0-9]{10}$/.test(phone)) { setErr('err-phone', true, 'phone'); ok = false; } else setErr('err-phone', false, 'phone');
 
   // Entries validation
-  if (entries.length === 0) { setErr('err-entries', true); ok = false; } else setErr('err-entries', false);
+  const hasAnyShirt = entries.some(e => e.navyOn || e.whiteOn);
+  if (!hasAnyShirt) { setErr('err-entries', true); ok = false; } else setErr('err-entries', false);
   entries.forEach(e => {
     if (!e.team) { setErr('err-team-' + e.id, true); ok = false; } else setErr('err-team-' + e.id, false);
     if (!e.division) { setErr('err-div-' + e.id, true, 'division-' + e.id); ok = false; } else setErr('err-div-' + e.id, false, 'division-' + e.id);
-    if (!e.color) { setErr('err-color-' + e.id, true); ok = false; } else setErr('err-color-' + e.id, false);
-    if (!e.size) { setErr('err-size-' + e.id, true, 'size-' + e.id); ok = false; } else setErr('err-size-' + e.id, false, 'size-' + e.id);
+    if (!e.navyOn && !e.whiteOn) { setErr('err-color-' + e.id, true); ok = false; } else setErr('err-color-' + e.id, false);
+    if (e.navyOn && !e.navySize) { setErr('err-size-navy-' + e.id, true, 'size-navy-' + e.id); ok = false; } else setErr('err-size-navy-' + e.id, false, 'size-navy-' + e.id);
+    if (e.whiteOn && !e.whiteSize) { setErr('err-size-white-' + e.id, true, 'size-white-' + e.id); ok = false; } else setErr('err-size-white-' + e.id, false, 'size-white-' + e.id);
   });
 
   // Delivery
@@ -533,7 +569,7 @@ async function submitOrder() {
     r.readAsDataURL(slip);
   });
 
-  const itemsTotal = entries.reduce((s, e) => s + e.price, 0);
+  const itemsTotal = entries.reduce((s, e) => s + entryShirtCount(e) * CONFIG.pricePerShirt, 0);
   const shippingFee = delivery === 'ship' ? CONFIG.shippingFee : 0;
   const grandTotal = itemsTotal + shippingFee;
   const orderId = 'CU' + Date.now().toString().slice(-8);
@@ -551,10 +587,15 @@ async function submitOrder() {
     const data = await resp.json();
     if (data.status !== 'ok') throw new Error(data.message || 'Error');
 
-    const entryList = entries.map((e,i) => `• ตัวที่${i+1}: สี${e.color} ไซส์ ${e.size} (${e.team}${e.division ? ' ' + e.division : ''})`).join('\n');
+    const lines = [];
+    entries.forEach((e, i) => {
+      const tag = e.forWhom ? ` สำหรับ ${e.forWhom}` : '';
+      if (e.navyOn && e.navySize) lines.push(`สีกรม ไซส์ ${e.navySize}${tag}`);
+      if (e.whiteOn && e.whiteSize) lines.push(`สีขาว ไซส์ ${e.whiteSize}${tag}`);
+    });
     document.getElementById('modal-msg').innerHTML =
       `ขอบคุณ <strong>${buyerName}</strong>!<br><br>` +
-      entries.map((e,i) => `ตัวที่${i+1}: สี${e.color} ไซส์ ${e.size}${e.forWhom ? ' สำหรับ ' + e.forWhom : ''}`).join('<br>') +
+      lines.join('<br>') +
       `<br><br>ยอดรวม: <strong>${grandTotal.toLocaleString()} ฿</strong>`;
     document.getElementById('modal-success').classList.add('open');
     btn.textContent = '✅ ส่งสำเร็จแล้ว';
