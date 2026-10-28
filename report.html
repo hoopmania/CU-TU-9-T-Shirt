@@ -117,12 +117,9 @@ input:focus { outline: none; border-color: var(--navy); }
     <div class="card">
       <h2>ยอดขายรายวัน</h2>
       <div class="filter-row">
-        <label>จาก</label>
-        <input type="date" id="date-from">
-        <label>ถึง</label>
-        <input type="date" id="date-to">
-        <button class="btn" onclick="renderDaily()">กรอง</button>
-        <button class="btn btn-outline" onclick="clearDateFilter()">ทั้งหมด</button>
+        <select id="date-quick" onchange="applyQuickFilter()" style="padding:9px 11px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.88rem;min-width:160px;">
+          <option value="">📅 ทุกวัน</option>
+        </select>
         <button class="btn btn-outline" onclick="loadData()" style="margin-left:auto;">🔄</button>
       </div>
       <div class="loading" id="daily-loading">กำลังโหลด...</div>
@@ -181,6 +178,7 @@ async function loadData() {
     allRows = data.rows || [];
     renderStats();
     showBreakdown(currentBreakdown);
+    populateDateDropdown();
     renderDaily();
   } catch(e) {
     document.getElementById('daily-loading').textContent = '❌ โหลดไม่ได้: ' + e.message;
@@ -232,11 +230,24 @@ function showBreakdown(tab) {
     `<tr class="total-row"><td>รวม</td><td class="num">${totalAll}</td><td class="num">${allRows.filter(r=>(r.color||'').includes('กรม')).length}</td><td class="num">${allRows.filter(r=>(r.color||'').includes('ขาว')).length}</td></tr>`;
 }
 
+function populateDateDropdown() {
+  const days = new Set();
+  allRows.forEach(r => {
+    const ts = r.timestamp ? new Date(r.timestamp) : null;
+    if (!ts || isNaN(ts)) return;
+    days.add(ts.toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+  });
+  const sel = document.getElementById('date-quick');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">📅 ทุกวัน</option>' +
+    [...days].sort((a,b) => b.localeCompare(a))
+      .map(d => `<option value="${d}" ${d===cur?'selected':''}>${d}</option>`).join('');
+}
+
+function applyQuickFilter() { renderDaily(); }
+
 function renderDaily() {
-  const fromVal = document.getElementById('date-from').value;
-  const toVal = document.getElementById('date-to').value;
-  const from = fromVal ? new Date(fromVal + 'T00:00:00') : null;
-  const to = toVal ? new Date(toVal + 'T23:59:59') : null;
+  const filterDay = document.getElementById('date-quick').value;
 
   // Group by date (from timestamp)
   const days = {};
@@ -244,9 +255,8 @@ function renderDaily() {
   allRows.forEach(r => {
     const ts = r.timestamp ? new Date(r.timestamp) : null;
     if (!ts || isNaN(ts)) return;
-    if (from && ts < from) return;
-    if (to && ts > to) return;
     const day = ts.toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    if (filterDay && day !== filterDay) return;
     if (!days[day]) days[day] = { orders: new Set(), shirts: 0, navy: 0, white: 0, revenue: 0 };
     days[day].shirts++;
     if ((r.color||'').includes('กรม')) days[day].navy++;
@@ -278,11 +288,6 @@ function renderDaily() {
     `<tr class="total-row"><td>รวม</td><td class="num">${[...entries.reduce((s,[,v])=>{v.orders.forEach(o=>s.add(o));return s;},new Set())].length}</td><td class="num">${entries.reduce((s,[,v])=>s+v.shirts,0)}</td><td class="num">${entries.reduce((s,[,v])=>s+v.navy,0)}</td><td class="num">${entries.reduce((s,[,v])=>s+v.white,0)}</td><td class="num">${entries.reduce((s,[,v])=>s+v.revenue,0).toLocaleString()}</td></tr>`;
 }
 
-function clearDateFilter() {
-  document.getElementById('date-from').value = '';
-  document.getElementById('date-to').value = '';
-  renderDaily();
-}
 </script>
 </body>
 </html>

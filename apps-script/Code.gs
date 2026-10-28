@@ -165,8 +165,8 @@ function checkStatus(q) {
   const rows = [];
   for (let i = 1; i < data.length; i++) {
     const r = data[i];
-    const name = (r[COL.BUYER_NAME - 1] || '').toLowerCase();
-    const phone = (r[COL.PHONE - 1] || '').toString();
+    const name = String(r[COL.BUYER_NAME - 1] || '').toLowerCase();
+    const phone = String(r[COL.PHONE - 1] || '');
     if (name.includes(ql) || phone.includes(q)) {
       rows.push({
         rowIndex: i + 1,
