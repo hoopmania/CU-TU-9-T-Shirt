@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin: รายงานยอดขาย — CU-TU #9</title>
+<style>
+:root {
+  --navy: #0a1f5c;
+  --navy2: #1a3a9c;
+  --paper: #f5f5f5;
+  --card: #ffffff;
+  --ink: #1a1a1a;
+  --muted: #666;
+  --line: #e0e0e0;
+  --danger: #e53e3e;
+  --success: #2f7d4f;
+  --radius: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun','Noto Sans Thai',sans-serif; background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.5; padding-bottom: 60px; }
+.header { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; padding: 16px 20px; }
+.header h1 { font-size: 1.1rem; font-weight: 700; }
+.header p { font-size: 0.82rem; opacity: 0.8; margin-top: 3px; }
+.container { max-width: 720px; margin: 0 auto; padding: 0 14px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-top: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); }
+.card h2 { font-size: 0.92rem; font-weight: 700; color: var(--navy); border-left: 4px solid var(--navy); padding-left: 9px; margin-bottom: 12px; }
+input[type="text"], input[type="password"], input[type="date"] {
+  padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 7px;
+  font-size: 0.9rem; font-family: inherit;
+}
+input:focus { outline: none; border-color: var(--navy); }
+.btn { display: inline-block; padding: 9px 18px; background: var(--navy); color: #fff; border: none; border-radius: 7px; font-size: 0.88rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+.btn-outline { background: transparent; color: var(--navy); border: 1.5px solid var(--navy); }
+
+/* Stats */
+.stats-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.stat-chip { flex: 1; min-width: 90px; background: #eef0f8; border-radius: 8px; padding: 10px 12px; text-align: center; }
+.stat-chip .num { font-size: 1.5rem; font-weight: 800; color: var(--navy); display: block; }
+.stat-chip .lbl { font-size: 0.72rem; color: var(--muted); }
+.stat-chip.money .num { color: var(--success); }
+
+/* Tables */
+.tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.tbl th { background: #eef0f8; padding: 7px 9px; text-align: left; font-weight: 700; color: var(--navy); white-space: nowrap; }
+.tbl td { padding: 6px 9px; border-bottom: 1px solid var(--line); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl .num { text-align: right; font-weight: 700; }
+.tbl .total-row td { background: #f0f4ff; font-weight: 700; }
+.scroll-x { overflow-x: auto; }
+
+/* Date filter */
+.filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.filter-row label { font-size: 0.83rem; color: var(--muted); }
+
+/* Daily table */
+.day-row { cursor: pointer; }
+.day-row:hover td { background: #f8f9ff; }
+.day-expand { display: none; background: #fafbff; }
+.day-expand.open { display: table-row-group; }
+.day-expand td { padding: 5px 9px 5px 24px; font-size: 0.8rem; color: #444; border-bottom: 1px solid #f0f0f0; }
+
+.loading { text-align: center; padding: 30px; color: var(--muted); }
+.err-msg { color: var(--danger); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 Admin: รายงานยอดขาย</h1>
+  <p>CU-TU Basketball Alumni #9</p>
+</div>
+
+<div class="container">
+
+  <!-- Login -->
+  <div class="card" id="login-card">
+    <h2>เข้าสู่ระบบ</h2>
+    <div style="display:flex;gap:8px;">
+      <input type="password" id="admin-pass" placeholder="รหัสผ่าน admin" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    </div>
+    <div class="err-msg" id="login-err" style="display:none;margin-top:8px;">รหัสผ่านไม่ถูกต้อง</div>
+  </div>
+
+  <div id="admin-content" style="display:none;">
+
+    <!-- Overall stats -->
+    <div class="card">
+      <h2>ภาพรวมทั้งหมด</h2>
+      <div class="stats-row">
+        <div class="stat-chip"><span class="num" id="st-orders">-</span><span class="lbl">ออร์เดอร์</span></div>
+        <div class="stat-chip"><span class="num" id="st-shirts">-</span><span class="lbl">ตัวรวม</span></div>
+        <div class="stat-chip money"><span class="num" id="st-revenue">-</span><span class="lbl">ยอดรวม (฿)</span></div>
+        <div class="stat-chip"><span class="num" id="st-navy">-</span><span class="lbl">สีกรม</span></div>
+        <div class="stat-chip"><span class="num" id="st-white">-</span><span class="lbl">สีขาว</span></div>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="card">
+      <h2>สรุปตามหมวด</h2>
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+        <button class="btn" id="tab-team" onclick="showBreakdown('team')">ทีม</button>
+        <button class="btn btn-outline" id="tab-div" onclick="showBreakdown('div')">รุ่น</button>
+        <button class="btn btn-outline" id="tab-color" onclick="showBreakdown('color')">สี</button>
+        <button class="btn btn-outline" id="tab-size" onclick="showBreakdown('size')">ไซส์</button>
+      </div>
+      <div class="scroll-x">
+        <table class="tbl" id="breakdown-table">
+          <thead id="bk-head"></thead>
+          <tbody id="bk-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Daily report -->
+    <div class="card">
+      <h2>ยอดขายรายวัน</h2>
+      <div class="filter-row">
+        <label>จาก</label>
+        <input type="date" id="date-from">
+        <label>ถึง</label>
+        <input type="date" id="date-to">
+        <button class="btn" onclick="renderDaily()">กรอง</button>
+        <button class="btn btn-outline" onclick="clearDateFilter()">ทั้งหมด</button>
+        <button class="btn btn-outline" onclick="loadData()" style="margin-left:auto;">🔄</button>
+      </div>
+      <div class="loading" id="daily-loading">กำลังโหลด...</div>
+      <div class="scroll-x">
+        <table class="tbl" id="daily-table" style="display:none;">
+          <thead>
+            <tr>
+              <th>วันที่</th>
+              <th class="num">ออร์เดอร์</th>
+              <th class="num">ตัวรวม</th>
+              <th class="num">สีกรม</th>
+              <th class="num">สีขาว</th>
+              <th class="num">ยอดรวม (฿)</th>
+            </tr>
+          </thead>
+          <tbody id="daily-body"></tbody>
+        </table>
+      </div>
+      <div id="daily-empty" style="display:none;text-align:center;padding:20px;color:var(--muted);font-size:0.85rem;">ไม่มีข้อมูลในช่วงวันที่เลือก</div>
+    </div>
+
+    <!-- Admin links -->
+    <div style="text-align:center;margin-top:16px;font-size:0.83rem;">
+      <a href="checkin.html" style="color:var(--navy);margin:0 10px;">เช็คชื่อรับชุด</a>
+      <a href="status.html" style="color:var(--navy);margin:0 10px;">เช็คสถานะ (ลูกค้า)</a>
+      <a href="jersey-order.html" style="color:var(--navy);margin:0 10px;">ฟอร์มสั่งซื้อ</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyahqzPFMiJGktwRGaOoBQsFRrS4iIVqkWSUCcAJg0wG5G_8D6UesqOvylcABj1JeNI/exec';
+const ADMIN_PASS = 'cutuba9';
+
+let allRows = [];
+let currentBreakdown = 'team';
+
+function doLogin() {
+  if (document.getElementById('admin-pass').value === ADMIN_PASS) {
+    document.getElementById('login-card').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+async function loadData() {
+  document.getElementById('daily-loading').style.display = 'block';
+  document.getElementById('daily-table').style.display = 'none';
+  try {
+    const resp = await fetch(SCRIPT_URL + '?action=getOrders&pass=' + encodeURIComponent(ADMIN_PASS));
+    const data = await resp.json();
+    if (data.status !== 'ok') throw new Error(data.message);
+    allRows = data.rows || [];
+    renderStats();
+    showBreakdown(currentBreakdown);
+    renderDaily();
+  } catch(e) {
+    document.getElementById('daily-loading').textContent = '❌ โหลดไม่ได้: ' + e.message;
+  }
+}
+
+function renderStats() {
+  const orders = new Set(allRows.map(r => r.orderId));
+  const revenue = allRows.reduce((s, r) => {
+    const g = parseFloat(r.grandTotal) || 0;
+    return s + (r.entryIndex == 1 ? g : 0);
+  }, 0);
+  document.getElementById('st-orders').textContent = orders.size;
+  document.getElementById('st-shirts').textContent = allRows.length;
+  document.getElementById('st-revenue').textContent = revenue.toLocaleString();
+  document.getElementById('st-navy').textContent = allRows.filter(r => (r.color||'').includes('กรม')).length;
+  document.getElementById('st-white').textContent = allRows.filter(r => (r.color||'').includes('ขาว')).length;
+}
+
+function showBreakdown(tab) {
+  currentBreakdown = tab;
+  ['team','div','color','size'].forEach(t => {
+    const btn = document.getElementById('tab-' + t);
+    if (btn) { btn.className = t === tab ? 'btn' : 'btn btn-outline'; }
+  });
+
+  const groups = {};
+  allRows.forEach(r => {
+    const key = tab === 'team' ? (r.team||'-')
+              : tab === 'div' ? (r.division||'-')
+              : tab === 'color' ? ('สี' + (r.color||'-'))
+              : (r.size||'-');
+    if (!groups[key]) groups[key] = { total: 0, navy: 0, white: 0 };
+    groups[key].total++;
+    if ((r.color||'').includes('กรม')) groups[key].navy++;
+    if ((r.color||'').includes('ขาว')) groups[key].white++;
+  });
+
+  const label = tab === 'team' ? 'ทีม' : tab === 'div' ? 'รุ่น' : tab === 'color' ? 'สี' : 'ไซส์';
+  document.getElementById('bk-head').innerHTML =
+    `<tr><th>${label}</th><th class="num">ตัวรวม</th><th class="num">สีกรม</th><th class="num">สีขาว</th></tr>`;
+
+  const sorted = Object.entries(groups).sort((a,b) => b[1].total - a[1].total);
+  const totalAll = allRows.length;
+  document.getElementById('bk-body').innerHTML =
+    sorted.map(([k, v]) =>
+      `<tr><td>${k}</td><td class="num">${v.total}</td><td class="num">${v.navy||'-'}</td><td class="num">${v.white||'-'}</td></tr>`
+    ).join('') +
+    `<tr class="total-row"><td>รวม</td><td class="num">${totalAll}</td><td class="num">${allRows.filter(r=>(r.color||'').includes('กรม')).length}</td><td class="num">${allRows.filter(r=>(r.color||'').includes('ขาว')).length}</td></tr>`;
+}
+
+function renderDaily() {
+  const fromVal = document.getElementById('date-from').value;
+  const toVal = document.getElementById('date-to').value;
+  const from = fromVal ? new Date(fromVal + 'T00:00:00') : null;
+  const to = toVal ? new Date(toVal + 'T23:59:59') : null;
+
+  // Group by date (from timestamp)
+  const days = {};
+  const ordersSeen = new Set();
+  allRows.forEach(r => {
+    const ts = r.timestamp ? new Date(r.timestamp) : null;
+    if (!ts || isNaN(ts)) return;
+    if (from && ts < from) return;
+    if (to && ts > to) return;
+    const day = ts.toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    if (!days[day]) days[day] = { orders: new Set(), shirts: 0, navy: 0, white: 0, revenue: 0 };
+    days[day].shirts++;
+    if ((r.color||'').includes('กรม')) days[day].navy++;
+    if ((r.color||'').includes('ขาว')) days[day].white++;
+    if (!days[day].orders.has(r.orderId)) {
+      days[day].orders.add(r.orderId);
+      days[day].revenue += parseFloat(r.grandTotal) || 0;
+    }
+  });
+
+  document.getElementById('daily-loading').style.display = 'none';
+  const entries = Object.entries(days).sort((a,b) => b[0].localeCompare(a[0]));
+
+  if (entries.length === 0) {
+    document.getElementById('daily-table').style.display = 'none';
+    document.getElementById('daily-empty').style.display = 'block';
+    return;
+  }
+  document.getElementById('daily-empty').style.display = 'none';
+  document.getElementById('daily-table').style.display = 'table';
+
+  const totalOrders = new Set(allRows.map(r => r.orderId)).size;
+  const totalRevenue = allRows.reduce((s, r) => s + (r.entryIndex == 1 ? (parseFloat(r.grandTotal)||0) : 0), 0);
+
+  document.getElementById('daily-body').innerHTML =
+    entries.map(([day, v]) =>
+      `<tr><td>${day}</td><td class="num">${v.orders.size}</td><td class="num">${v.shirts}</td><td class="num">${v.navy||'-'}</td><td class="num">${v.white||'-'}</td><td class="num">${v.revenue.toLocaleString()}</td></tr>`
+    ).join('') +
+    `<tr class="total-row"><td>รวม</td><td class="num">${[...entries.reduce((s,[,v])=>{v.orders.forEach(o=>s.add(o));return s;},new Set())].length}</td><td class="num">${entries.reduce((s,[,v])=>s+v.shirts,0)}</td><td class="num">${entries.reduce((s,[,v])=>s+v.navy,0)}</td><td class="num">${entries.reduce((s,[,v])=>s+v.white,0)}</td><td class="num">${entries.reduce((s,[,v])=>s+v.revenue,0).toLocaleString()}</td></tr>`;
+}
+
+function clearDateFilter() {
+  document.getElementById('date-from').value = '';
+  document.getElementById('date-to').value = '';
+  renderDaily();
+}
+</script>
+</body>
+</html>
