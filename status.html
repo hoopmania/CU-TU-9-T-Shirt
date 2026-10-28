@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เช็คสถานะออร์เดอร์ — CU-TU #9</title>
+<style>
+:root {
+  --navy: #0a1f5c;
+  --navy2: #1a3a9c;
+  --paper: #f5f5f5;
+  --card: #ffffff;
+  --ink: #1a1a1a;
+  --muted: #666;
+  --line: #e0e0e0;
+  --danger: #e53e3e;
+  --success: #2f7d4f;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun','Noto Sans Thai',sans-serif; background: var(--paper); color: var(--ink); font-size: 16px; line-height: 1.6; padding-bottom: 60px; }
+.header { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; text-align: center; padding: 22px 20px 18px; }
+.header h1 { font-size: 1.2rem; font-weight: 700; }
+.header p { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
+.container { max-width: 500px; margin: 0 auto; padding: 0 16px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 18px; margin-top: 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); }
+.card h2 { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 13px; }
+input[type="text"], input[type="tel"] {
+  width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 8px;
+  font-size: 1rem; font-family: inherit;
+}
+input:focus { outline: none; border-color: var(--navy); }
+.btn { display: block; width: 100%; padding: 11px; background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 10px; }
+.field { margin-bottom: 10px; }
+.field-label { display: block; font-size: 0.87rem; font-weight: 600; margin-bottom: 5px; color: #333; }
+
+/* Result */
+.result-head { background: #f0f4ff; border-radius: 8px; padding: 13px 14px; margin-bottom: 12px; }
+.result-head .name { font-size: 1.1rem; font-weight: 700; color: var(--navy); }
+.result-head .meta { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+.entry-row { border: 1.5px solid var(--line); border-radius: 8px; padding: 11px 13px; margin-bottom: 9px; }
+.entry-row .en-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.entry-row .en-num { font-size: 0.75rem; font-weight: 700; background: var(--navy); color: #fff; padding: 2px 9px; border-radius: 99px; }
+.entry-row .en-body { font-size: 0.87rem; color: #333; line-height: 1.8; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; }
+.badge-pending { background: #fff3cd; color: #856404; }
+.badge-received { background: #d1e7dd; color: var(--success); }
+.badge-shipped { background: #cfe2ff; color: #0d47a1; }
+.not-found { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 0.9rem; }
+.loading { text-align: center; padding: 24px; color: var(--muted); }
+.back-link { text-align: center; margin-top: 16px; }
+.back-link a { color: var(--navy); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🏀 เช็คสถานะออร์เดอร์</h1>
+  <p>CU-TU Basketball Alumni #9</p>
+</div>
+
+<div class="container">
+  <div class="card">
+    <h2>กรอกชื่อหรือเบอร์โทรที่ใช้สั่งซื้อ</h2>
+    <div class="field">
+      <label class="field-label" for="search-name">ชื่อ-นามสกุล หรือ เบอร์โทรศัพท์</label>
+      <input type="text" id="search-name" placeholder="เช่น สมชาย ใจดี หรือ 0812345678" inputmode="text"
+        onkeydown="if(event.key==='Enter')doSearch()">
+    </div>
+    <button class="btn" onclick="doSearch()">ค้นหาออร์เดอร์ของฉัน</button>
+  </div>
+
+  <div id="result-area"></div>
+
+  <div class="back-link"><a href="jersey-order.html">← กลับหน้าสั่งซื้อ</a></div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyahqzPFMiJGktwRGaOoBQsFRrS4iIVqkWSUCcAJg0wG5G_8D6UesqOvylcABj1JeNI/exec';
+
+async function doSearch() {
+  const q = document.getElementById('search-name').value.trim();
+  if (!q) return;
+  const area = document.getElementById('result-area');
+  area.innerHTML = '<div class="card loading">กำลังค้นหา...</div>';
+  try {
+    const url = SCRIPT_URL + '?action=checkStatus&q=' + encodeURIComponent(q);
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data.status !== 'ok') throw new Error(data.message);
+    const rows = data.rows || [];
+    if (rows.length === 0) {
+      area.innerHTML = '<div class="card"><div class="not-found">❌ ไม่พบออร์เดอร์สำหรับ "' + q + '"<br><small>ลองค้นด้วยชื่อหรือเบอร์โทรที่ใช้สั่ง</small></div></div>';
+      return;
+    }
+    // Group by orderId
+    const orders = {};
+    rows.forEach(r => {
+      if (!orders[r.orderId]) orders[r.orderId] = { info: r, entries: [] };
+      orders[r.orderId].entries.push(r);
+    });
+    area.innerHTML = Object.values(orders).map(o => {
+      const r = o.info;
+      const dlv = r.delivery === 'ship' ? `📦 จัดส่งถึงบ้าน<br><small>${r.address||''}</small>` : '🤝 รับด้วยตัวเอง';
+      const entries = o.entries.map((e, i) => {
+        const isShip = e.delivery === 'ship';
+        const st = isShip ? 'ส่งที่บ้าน' : (e.status || 'ยังไม่รับ');
+        const badgeCls = st === 'รับแล้ว' ? 'badge-received' : st === 'ส่งที่บ้าน' ? 'badge-shipped' : 'badge-pending';
+        return `<div class="entry-row">
+          <div class="en-head">
+            <span class="en-num">ตัวที่ ${e.entryIndex||i+1}</span>
+            <span class="badge ${badgeCls}">${st}</span>
+          </div>
+          <div class="en-body">
+            ${e.forWhom ? `<strong>สำหรับ:</strong> ${e.forWhom}<br>` : ''}
+            <strong>ทีม:</strong> ${e.team||'-'} &nbsp; <strong>รุ่น:</strong> ${e.division||'-'}<br>
+            <strong>สี:</strong> สี${e.color||'-'} &nbsp; <strong>ไซส์:</strong> ${e.size||'-'}
+          </div>
+        </div>`;
+      }).join('');
+      return `<div class="card">
+        <div class="result-head">
+          <div class="name">${r.buyerName}</div>
+          <div class="meta">📞 ${r.phone} &nbsp;|&nbsp; ${dlv}</div>
+          <div class="meta" style="margin-top:4px;">ยอดรวม: <strong>${(r.grandTotal||0).toLocaleString()} ฿</strong></div>
+        </div>
+        ${entries}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    area.innerHTML = '<div class="card"><div class="not-found">เกิดข้อผิดพลาด: ' + e.message + '</div></div>';
+  }
+}
+</script>
+</body>
+</html>
