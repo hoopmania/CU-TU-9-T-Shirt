@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>สั่งซื้อเสื้อที่ระลึก CU-TU Basketball Alumni #9</title>
-<meta name="description" content="ฟอร์มสั่งซื้อเสื้อที่ระลึก CU-TU Basketball Alumni #9 ราคาตัวละ 300 บาท ผ้าฝ้ายเกรดพรีเมี่ยม มี 2 สี สีกรม (Chula) และสีขาว (Thammasat)">
+<meta name="description" content="ฟอร์มสั่งซื้อเสื้อที่ระลึก CU-TU Basketball Alumni #9 ราคาตัวละ 300 บาท ผ้าฝ้ายเกรดพรีเมี่ยม มี 3 แบบ สีกรมท่า CU, สีขาว TU, TU สีกรมท่า">
 <meta property="og:title" content="สั่งซื้อเสื้อที่ระลึก CU-TU Basketball Alumni #9">
 <meta property="og:description" content="เสื้อที่ระลึก CU-TU Basketball Alumni #9 ราคาตัวละ 300 บาท ผ้าฝ้ายเกรดพรีเมี่ยม ปิดรับจอง 8 พ.ย. 2026">
 <meta property="og:type" content="website">
@@ -84,6 +84,16 @@ textarea { min-height: 72px; resize: vertical; }
 .swatch { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.15); flex-shrink: 0; }
 .swatch.navy { background: #0a1f5c; }
 .swatch.white { background: #fff; border-color: #bbb; }
+.swatch.tu-navy { background: #1a3a7a; }
+
+/* Combine delivery lookup */
+.combine-lookup { margin-top: 10px; padding: 11px 12px; background: #f8faff; border: 1.5px solid #c3cff8; border-radius: 9px; display: none; }
+.combine-lookup.open { display: block; }
+.combine-row { display: flex; gap: 8px; align-items: center; }
+.combine-row input { flex: 1; }
+.btn-lookup { padding: 9px 14px; background: var(--navy); color: #fff; border: none; border-radius: 7px; font-size: 0.88rem; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.btn-lookup:disabled { opacity: 0.5; cursor: not-allowed; }
+#combine-result { margin-top: 8px; font-size: 0.85rem; }
 
 /* Summary */
 .summary-box { background: #f0f4ff; border: 1.5px solid #c3cff8; border-radius: 10px; padding: 13px 15px; margin-top: 8px; }
@@ -157,9 +167,9 @@ textarea { min-height: 72px; resize: vertical; }
 
   <!-- Product photo -->
   <div class="product-card">
-    <img src="jersey-product.jpg" alt="เสื้อที่ระลึก CU-TU สีขาว Thammasat และสีกรม Chula">
+    <img src="jersey-product.jpg" alt="เสื้อที่ระลึก CU-TU สีขาว/สีกรมท่า Thammasat และสีกรมท่า Chula">
     <div class="product-card-footer">
-      <span>สีขาว (Thammasat) &nbsp;|&nbsp; สีกรม (Chula)</span>
+      <span>เสื้อที่ระลึก CU-TU สีขาว/สีกรมท่า Thammasat และสีกรมท่า Chula</span>
       <span class="size-link" onclick="openSizeChart()">📐 ดูตารางไซส์</span>
     </div>
   </div>
@@ -186,7 +196,7 @@ textarea { min-height: 72px; resize: vertical; }
   <!-- Entries -->
   <div class="card">
     <h2>รายการเสื้อ</h2>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">สั่งได้หลายชุด — สองสีให้ tick ทั้งคู่ได้เลย กด "+ เพิ่มอีกชุด" เมื่อเป็นของคนอื่น หรือสีเดียวกันแต่คนละไซส์</p>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">สั่งได้หลายชุด — สามแบบ ให้ tick สีและแบบที่ต้องการได้เลย กด "+ เพิ่มอีกชุด" เมื่อเป็นของคนอื่น หรือสีเดียวกันแต่คนละไซส์</p>
     <div class="entries" id="entries"></div>
     <button class="btn-add" type="button" onclick="addEntry()">+ เพิ่มอีกชุด (สั่งให้เพื่อน / สีเดียวกันแต่คนละไซส์)</button>
     <div class="err" id="err-entries" style="margin-top:8px;">กรุณาเพิ่มรายการเสื้ออย่างน้อย 1 ตัว</div>
@@ -222,8 +232,27 @@ textarea { min-height: 72px; resize: vertical; }
           <span class="ro-sub">Kerry / Flash — กรุณากรอกที่อยู่</span>
         </span>
       </label>
+      <label class="radio-opt" id="dlv-combine-label" for="dlv-combine">
+        <input type="radio" name="delivery" id="dlv-combine" value="combine" onchange="onDelivery()">
+        <span style="font-size:1.3rem;">📎</span>
+        <span class="ro-text">
+          <span class="ro-title">รวมส่งกับออร์เดอร์เดิม</span>
+          <span class="ro-sub">เอารายการนี้ไปรวมกับออร์เดอร์ที่สั่งไว้ก่อนหน้า — ไม่เสียค่าส่งเพิ่ม</span>
+        </span>
+      </label>
     </div>
     <div class="err" id="err-delivery">กรุณาเลือกวิธีรับเสื้อ</div>
+
+    <!-- Combine order lookup -->
+    <div class="combine-lookup" id="combine-wrap">
+      <div style="font-size:0.85rem;font-weight:600;color:var(--navy);margin-bottom:8px;">ค้นหาออร์เดอร์เดิมด้วยเบอร์โทร</div>
+      <div class="combine-row">
+        <input type="tel" id="combine-phone" placeholder="เบอร์โทรที่สั่งไว้ก่อน" maxlength="10" inputmode="numeric">
+        <button class="btn-lookup" type="button" onclick="lookupCombineOrders()">ค้นหา</button>
+      </div>
+      <div id="combine-result"></div>
+      <div class="err" id="err-combine">กรุณาเลือกออร์เดอร์ที่ต้องการรวม</div>
+    </div>
 
     <div id="address-wrap" style="display:none;margin-top:14px;">
       <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:0.84rem;color:#795548;">
@@ -341,40 +370,58 @@ function addEntry() {
       <div class="field" style="margin-bottom:4px;">
         <label class="field-label">สีเสื้อ &amp; ไซส์ <span class="req">*</span> <span style="font-weight:400;color:var(--muted);font-size:0.8rem;">เลือกได้มากกว่า 1 สี</span></label>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <!-- Navy -->
+          <!-- CU Navy -->
           <div id="color-navy-wrap-${id}">
             <label class="radio-opt" for="chk-navy-${id}" style="cursor:pointer;">
               <input type="checkbox" id="chk-navy-${id}" onchange="onColorToggle(${id},'navy')" style="width:18px;height:18px;accent-color:var(--navy);flex-shrink:0;">
               <span class="swatch navy"></span>
               <span class="ro-text">
-                <span class="ro-title">สีกรม (Chula)</span>
+                <span class="ro-title">CU-TU #9 สีกรมท่า CU</span>
                 <span class="ro-sub">ผ้าฝ้ายเกรดพรีเมี่ยม — 300 ฿/ตัว</span>
               </span>
             </label>
             <div id="size-navy-wrap-${id}" style="display:none;margin-top:6px;padding:0 4px;">
               <select id="size-navy-${id}" onchange="onSizeChange(${id},'navy')">
-                <option value="">-- ไซส์สีกรม --</option>
+                <option value="">-- ไซส์ --</option>
                 ${SIZES.map(s => `<option>${s}</option>`).join('')}
               </select>
-              <div class="err" id="err-size-navy-${id}">⚠️ กรุณาเลือกไซส์สีกรม</div>
+              <div class="err" id="err-size-navy-${id}">⚠️ กรุณาเลือกไซส์</div>
             </div>
           </div>
-          <!-- White -->
+          <!-- TU White -->
           <div id="color-white-wrap-${id}">
             <label class="radio-opt" for="chk-white-${id}" style="cursor:pointer;">
               <input type="checkbox" id="chk-white-${id}" onchange="onColorToggle(${id},'white')" style="width:18px;height:18px;accent-color:var(--navy);flex-shrink:0;">
               <span class="swatch white"></span>
               <span class="ro-text">
-                <span class="ro-title">สีขาว (Thammasat)</span>
+                <span class="ro-title">CU-TU #9 สีขาว TU</span>
                 <span class="ro-sub">ผ้าฝ้ายเกรดพรีเมี่ยม — 300 ฿/ตัว</span>
               </span>
             </label>
             <div id="size-white-wrap-${id}" style="display:none;margin-top:6px;padding:0 4px;">
               <select id="size-white-${id}" onchange="onSizeChange(${id},'white')">
-                <option value="">-- ไซส์สีขาว --</option>
+                <option value="">-- ไซส์ --</option>
                 ${SIZES.map(s => `<option>${s}</option>`).join('')}
               </select>
-              <div class="err" id="err-size-white-${id}">⚠️ กรุณาเลือกไซส์สีขาว</div>
+              <div class="err" id="err-size-white-${id}">⚠️ กรุณาเลือกไซส์</div>
+            </div>
+          </div>
+          <!-- TU Navy (new) -->
+          <div id="color-tu-wrap-${id}">
+            <label class="radio-opt" for="chk-tu-${id}" style="cursor:pointer;">
+              <input type="checkbox" id="chk-tu-${id}" onchange="onColorToggle(${id},'tu')" style="width:18px;height:18px;accent-color:var(--navy);flex-shrink:0;">
+              <span class="swatch tu-navy"></span>
+              <span class="ro-text">
+                <span class="ro-title">TU สีกรมท่า <span style="background:#1a3a7a;color:#fff;font-size:0.7rem;padding:1px 7px;border-radius:99px;font-weight:700;vertical-align:middle;">NEW</span></span>
+                <span class="ro-sub">เสื้อยืด Thammasat สีกรมท่า — 300 ฿/ตัว</span>
+              </span>
+            </label>
+            <div id="size-tu-wrap-${id}" style="display:none;margin-top:6px;padding:0 4px;">
+              <select id="size-tu-${id}" onchange="onSizeChange(${id},'tu')">
+                <option value="">-- ไซส์ --</option>
+                ${SIZES.map(s => `<option>${s}</option>`).join('')}
+              </select>
+              <div class="err" id="err-size-tu-${id}">⚠️ กรุณาเลือกไซส์</div>
             </div>
           </div>
         </div>
@@ -412,7 +459,7 @@ function onColorToggle(id, color) {
     if (sel) sel.value = '';
     clearErr('err-size-' + color + '-' + id, 'size-' + color + '-' + id);
   }
-  const anyChecked = document.getElementById('chk-navy-'+id)?.checked || document.getElementById('chk-white-'+id)?.checked;
+  const anyChecked = ['navy','white','tu'].some(c => document.getElementById(`chk-${c}-${id}`)?.checked);
   if (anyChecked) clearErr('err-color-' + id, null);
   updateSummary();
 }
@@ -435,26 +482,24 @@ function setErr(errId, show, inputId) {
   if (inputId) { const el = document.getElementById(inputId); if (el) { if (show) el.classList.add('invalid'); else el.classList.remove('invalid'); } }
 }
 
-// Returns array of cards; each card can have navy and/or white selected
+// Returns array of cards; each card can have navy, white, and/or tu-navy selected
 function getEntries() {
   return [...document.querySelectorAll('.entry-card')].map(card => {
     const id = card.id.replace('entry-', '');
     const teamEl = document.querySelector(`[name="team-${id}"]:checked`);
     const divEl = document.getElementById('division-' + id);
     const forEl = document.getElementById('for-' + id);
-    const navyChk = document.getElementById('chk-navy-' + id);
-    const whiteChk = document.getElementById('chk-white-' + id);
-    const navySize = document.getElementById('size-navy-' + id)?.value || '';
-    const whiteSize = document.getElementById('size-white-' + id)?.value || '';
     return {
       id,
       forWhom: forEl ? forEl.value.trim() : '',
       team: teamEl ? teamEl.value : '',
       division: divEl ? divEl.value : '',
-      navyOn: navyChk?.checked || false,
-      navySize,
-      whiteOn: whiteChk?.checked || false,
-      whiteSize,
+      navyOn: document.getElementById(`chk-navy-${id}`)?.checked || false,
+      navySize: document.getElementById(`size-navy-${id}`)?.value || '',
+      whiteOn: document.getElementById(`chk-white-${id}`)?.checked || false,
+      whiteSize: document.getElementById(`size-white-${id}`)?.value || '',
+      tuOn: document.getElementById(`chk-tu-${id}`)?.checked || false,
+      tuSize: document.getElementById(`size-tu-${id}`)?.value || '',
     };
   });
 }
@@ -463,6 +508,7 @@ function entryShirtCount(e) {
   let n = 0;
   if (e.navyOn && e.navySize) n++;
   if (e.whiteOn && e.whiteSize) n++;
+  if (e.tuOn && e.tuSize) n++;
   return n;
 }
 
@@ -474,15 +520,17 @@ function updateSummary() {
   const shipping = isShip ? CONFIG.shippingFee : 0;
   const total = itemsTotal + shipping;
 
-  const hasEntries = entries.some(e => e.navyOn || e.whiteOn);
+  const hasEntries = entries.some(e => e.navyOn || e.whiteOn || e.tuOn);
   document.getElementById('summary-section').style.display = hasEntries ? 'block' : 'none';
 
   const sumEl = document.getElementById('sum-entries');
   sumEl.innerHTML = entries.map(e => {
     const lines = [];
     const tag = e.forWhom ? ` (${e.forWhom})` : '';
-    if (e.navyOn && e.navySize) lines.push(`<div class="sum-row"><span>สีกรม ไซส์ ${e.navySize}${tag}</span><span>${CONFIG.pricePerShirt.toLocaleString()} ฿</span></div>`);
-    if (e.whiteOn && e.whiteSize) lines.push(`<div class="sum-row"><span>สีขาว ไซส์ ${e.whiteSize}${tag}</span><span>${CONFIG.pricePerShirt.toLocaleString()} ฿</span></div>`);
+    const p = CONFIG.pricePerShirt.toLocaleString();
+    if (e.navyOn && e.navySize) lines.push(`<div class="sum-row"><span>CU-TU #9 สีกรมท่า CU ไซส์ ${e.navySize}${tag}</span><span>${p} ฿</span></div>`);
+    if (e.whiteOn && e.whiteSize) lines.push(`<div class="sum-row"><span>CU-TU #9 สีขาว TU ไซส์ ${e.whiteSize}${tag}</span><span>${p} ฿</span></div>`);
+    if (e.tuOn && e.tuSize) lines.push(`<div class="sum-row"><span>TU สีกรมท่า ไซส์ ${e.tuSize}${tag}</span><span>${p} ฿</span></div>`);
     return lines.join('');
   }).join('');
 
@@ -499,10 +547,48 @@ function updateSummary() {
 function onDelivery() {
   const val = document.querySelector('input[name="delivery"]:checked')?.value;
   document.getElementById('address-wrap').style.display = val === 'ship' ? 'block' : 'none';
+  document.getElementById('combine-wrap').classList.toggle('open', val === 'combine');
   document.getElementById('dlv-pickup-label').classList.toggle('selected', val === 'pickup');
   document.getElementById('dlv-ship-label').classList.toggle('selected', val === 'ship');
+  document.getElementById('dlv-combine-label').classList.toggle('selected', val === 'combine');
   setErr('err-delivery', false);
   updateSummary();
+}
+
+async function lookupCombineOrders() {
+  const phone = document.getElementById('combine-phone').value.trim();
+  if (!/^[0-9]{9,10}$/.test(phone)) {
+    document.getElementById('combine-result').innerHTML = '<span style="color:var(--danger);font-size:0.82rem;">⚠️ กรุณากรอกเบอร์โทรให้ถูกต้อง</span>';
+    return;
+  }
+  const btn = document.querySelector('.btn-lookup');
+  btn.disabled = true; btn.textContent = '⏳';
+  document.getElementById('combine-result').innerHTML = '<span style="color:var(--muted);">กำลังค้นหา...</span>';
+  try {
+    const resp = await fetch(CONFIG.scriptUrl, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'getOrdersByPhone', phone }),
+    });
+    const data = await resp.json();
+    if (data.status !== 'ok') throw new Error(data.message);
+    const orders = data.orders || [];
+    if (orders.length === 0) {
+      document.getElementById('combine-result').innerHTML = '<span style="color:var(--muted);font-size:0.82rem;">ไม่พบออร์เดอร์จัดส่งที่รอดำเนินการ</span>';
+    } else {
+      document.getElementById('combine-result').innerHTML = `
+        <div style="margin-top:6px;">
+          <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:4px;">เลือกออร์เดอร์ที่ต้องการรวม:</label>
+          <select id="combine-order-sel" style="width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.9rem;" onchange="setErr('err-combine',false)">
+            <option value="">-- เลือกออร์เดอร์ --</option>
+            ${orders.map(o => `<option value="${o.orderId}">${o.orderId} — ${o.shirtSummary} — ${o.dateStr}</option>`).join('')}
+          </select>
+        </div>`;
+    }
+  } catch(e) {
+    document.getElementById('combine-result').innerHTML = `<span style="color:var(--danger);font-size:0.82rem;">เกิดข้อผิดพลาด: ${e.message}</span>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'ค้นหา';
+  }
 }
 
 function openSizeChart() { document.getElementById('size-modal').classList.add('open'); }
@@ -538,19 +624,22 @@ async function submitOrder() {
   if (!/^[0-9]{10}$/.test(phone)) { setErr('err-phone', true, 'phone'); ok = false; } else setErr('err-phone', false, 'phone');
 
   // Entries validation
-  const hasAnyShirt = entries.some(e => e.navyOn || e.whiteOn);
+  const hasAnyShirt = entries.some(e => e.navyOn || e.whiteOn || e.tuOn);
   if (!hasAnyShirt) { setErr('err-entries', true); ok = false; } else setErr('err-entries', false);
   entries.forEach(e => {
     if (!e.team) { setErr('err-team-' + e.id, true); ok = false; } else setErr('err-team-' + e.id, false);
     if (!e.division) { setErr('err-div-' + e.id, true, 'division-' + e.id); ok = false; } else setErr('err-div-' + e.id, false, 'division-' + e.id);
-    if (!e.navyOn && !e.whiteOn) { setErr('err-color-' + e.id, true); ok = false; } else setErr('err-color-' + e.id, false);
+    if (!e.navyOn && !e.whiteOn && !e.tuOn) { setErr('err-color-' + e.id, true); ok = false; } else setErr('err-color-' + e.id, false);
     if (e.navyOn && !e.navySize) { setErr('err-size-navy-' + e.id, true, 'size-navy-' + e.id); ok = false; } else setErr('err-size-navy-' + e.id, false, 'size-navy-' + e.id);
     if (e.whiteOn && !e.whiteSize) { setErr('err-size-white-' + e.id, true, 'size-white-' + e.id); ok = false; } else setErr('err-size-white-' + e.id, false, 'size-white-' + e.id);
+    if (e.tuOn && !e.tuSize) { setErr('err-size-tu-' + e.id, true, 'size-tu-' + e.id); ok = false; } else setErr('err-size-tu-' + e.id, false, 'size-tu-' + e.id);
   });
 
   // Delivery
   if (!delivery) { setErr('err-delivery', true); ok = false; } else setErr('err-delivery', false);
   if (delivery === 'ship' && address.length < 1) { setErr('err-address', true, 'address'); ok = false; } else setErr('err-address', false, 'address');
+  const combineOrderId = document.getElementById('combine-order-sel')?.value || '';
+  if (delivery === 'combine' && !combineOrderId) { setErr('err-combine', true); ok = false; } else setErr('err-combine', false);
 
   // Slip
   if (!slip) { setErr('err-slip', true); ok = false; } else setErr('err-slip', false);
@@ -575,6 +664,7 @@ async function submitOrder() {
   const payload = {
     orderId, buyerName, phone, lineId,
     delivery, address: delivery === 'ship' ? address : '',
+    combineOrderId: delivery === 'combine' ? combineOrderId : '',
     shippingFee, grandTotal,
     note: document.getElementById('note').value.trim(),
     entries, slipBase64, slipFileName: slip.name,
@@ -588,8 +678,9 @@ async function submitOrder() {
     const lines = [];
     entries.forEach((e) => {
       const tag = e.forWhom ? ` (${e.forWhom})` : '';
-      if (e.navyOn && e.navySize) lines.push(`สีกรม ${e.navySize}${tag}`);
-      if (e.whiteOn && e.whiteSize) lines.push(`สีขาว ${e.whiteSize}${tag}`);
+      if (e.navyOn && e.navySize) lines.push(`CU กรมท่า ${e.navySize}${tag}`);
+      if (e.whiteOn && e.whiteSize) lines.push(`TU ขาว ${e.whiteSize}${tag}`);
+      if (e.tuOn && e.tuSize) lines.push(`TU กรมท่า ${e.tuSize}${tag}`);
     });
     document.getElementById('toast-msg').textContent =
       `${buyerName} — ${lines.join(', ')} — รวม ${grandTotal.toLocaleString()} ฿`;
@@ -619,6 +710,10 @@ function resetForm() {
   document.getElementById('address').value = '';
   document.getElementById('dlv-pickup-label').classList.remove('selected');
   document.getElementById('dlv-ship-label').classList.remove('selected');
+  document.getElementById('dlv-combine-label').classList.remove('selected');
+  document.getElementById('combine-wrap').classList.remove('open');
+  document.getElementById('combine-phone').value = '';
+  document.getElementById('combine-result').innerHTML = '';
   // Reset slip
   document.getElementById('slip-input').value = '';
   document.getElementById('slip-preview').style.display = 'none';

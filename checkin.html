@@ -23,7 +23,7 @@ body { font-family: 'Sarabun','Noto Sans Thai',sans-serif; background: var(--pap
 .header { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; padding: 16px 20px; }
 .header h1 { font-size: 1.1rem; font-weight: 700; }
 .header p { font-size: 0.82rem; opacity: 0.8; margin-top: 3px; }
-.container { max-width: 720px; margin: 0 auto; padding: 0 14px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 14px; }
 .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-top: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); }
 .card h2 { font-size: 0.92rem; font-weight: 700; color: var(--navy); border-left: 4px solid var(--navy); padding-left: 9px; margin-bottom: 12px; }
 input[type="text"], input[type="tel"], input[type="password"] {
@@ -154,8 +154,9 @@ select.status-sel { padding: 4px 6px; border: 1.5px solid var(--line); border-ra
               <th>สำหรับ</th>
               <th>ทีม</th>
               <th>รุ่น</th>
-              <th>สีกรม</th>
-              <th>สีขาว</th>
+              <th>CU Navy</th>
+              <th>TU White</th>
+              <th>TU Navy</th>
               <th>จำนวน</th>
               <th>สถานะ</th>
             </tr>
@@ -292,18 +293,17 @@ function renderOrders() {
       const pickOpts = ['รับคำสั่งซื้อแล้ว','ส่งคำสั่งซื้อไปโรงงาน','โรงงานกำลังผลิต','ผลิตเสร็จแล้ว','อยู่ในระหว่างนัดรับ','รับเสื้อเรียบร้อยแล้ว'];
       const opts = (isShip ? shipOpts : pickOpts).map(v=>`<option value="${v}" ${st===v?'selected':''}>${v}</option>`).join('');
       const statusCell = `<select class="status-sel" onchange="updateStatus('${r.rowIndex}','${r.orderId}',this.value,this)">${opts}</select>`;
-      const navyLabel = r.navySize ? `กรม/${r.navySize}` : '-';
-      const whiteLabel = r.whiteSize ? `ขาว/${r.whiteSize}` : '-';
       return `<tr>
         <td style="white-space:nowrap;font-size:0.75rem;color:var(--muted);">${i+1}</td>
         <td><strong>${r.buyerName||'-'}</strong></td>
-        <td>${r.phone||'-'}</td>
+        <td>${r.phone ? r.phone.slice(0,-2)+'**' : '-'}</td>
         <td style="text-align:center;">${r.entryNo||'-'}</td>
         <td>${r.forWhom||'-'}</td>
         <td>${r.team||'-'}</td>
         <td>${r.division||'-'}</td>
-        <td>${navyLabel}</td>
-        <td>${whiteLabel}</td>
+        <td>${r.navySize||'-'}</td>
+        <td>${r.whiteSize||'-'}</td>
+        <td>${r.tuNavySize||'-'}</td>
         <td style="text-align:center;">${r.qty||0}</td>
         <td class="status-cell">${statusCell}</td>
       </tr>`;

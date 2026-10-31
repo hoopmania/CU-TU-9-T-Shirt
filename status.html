@@ -132,7 +132,7 @@ async function doSearch() {
       return `<div class="card">
         <div class="result-head">
           <div class="name">${r.buyerName}</div>
-          <div class="meta">📞 ${r.phone} &nbsp;|&nbsp; ${dlv}</div>
+          <div class="meta">📞 ${r.phone ? r.phone.slice(0,-2)+'**' : '-'} &nbsp;|&nbsp; ${dlv}</div>
           <div class="meta" style="margin-top:4px;">ยอดรวม: <strong>${(r.grandTotal||0).toLocaleString()} ฿</strong></div>
         </div>
         ${entries}

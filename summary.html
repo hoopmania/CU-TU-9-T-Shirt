@@ -15,7 +15,7 @@ body { font-family: 'Sarabun','Noto Sans Thai',sans-serif; background: var(--pap
 .header { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; padding: 16px 20px; }
 .header h1 { font-size: 1.1rem; font-weight: 700; }
 .header p { font-size: 0.82rem; opacity: 0.8; margin-top: 3px; }
-.container { max-width: 680px; margin: 0 auto; padding: 0 14px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 14px; }
 .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-top: 14px; box-shadow: 0 1px 5px rgba(0,0,0,.07); }
 .card h2 { font-size: 0.95rem; font-weight: 700; color: var(--navy); border-left: 4px solid var(--navy); padding-left: 9px; margin-bottom: 14px; }
 input[type="password"] { padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 7px; font-size: 0.95rem; font-family: inherit; width: 100%; }
@@ -102,57 +102,59 @@ async function loadData() {
 }
 
 function renderSummary() {
-  const navyCounts = {}, whiteCounts = {};
-  SIZES.forEach(s => { navyCounts[s] = 0; whiteCounts[s] = 0; });
+  const cuNavyCounts = {}, tuWhiteCounts = {}, tuNavyCounts = {};
 
   allRows.forEach(r => {
-    if (r.navySize && navyCounts[r.navySize] !== undefined) navyCounts[r.navySize]++;
-    else if (r.navySize) navyCounts[r.navySize] = (navyCounts[r.navySize] || 0) + 1;
-    if (r.whiteSize && whiteCounts[r.whiteSize] !== undefined) whiteCounts[r.whiteSize]++;
-    else if (r.whiteSize) whiteCounts[r.whiteSize] = (whiteCounts[r.whiteSize] || 0) + 1;
+    if (r.navySize)   cuNavyCounts[r.navySize]   = (cuNavyCounts[r.navySize]   || 0) + 1;
+    if (r.whiteSize)  tuWhiteCounts[r.whiteSize]  = (tuWhiteCounts[r.whiteSize]  || 0) + 1;
+    if (r.tuNavySize) tuNavyCounts[r.tuNavySize]  = (tuNavyCounts[r.tuNavySize]  || 0) + 1;
   });
 
-  // collect all sizes that have data
-  const allSizes = [...new Set([...Object.keys(navyCounts).filter(s=>navyCounts[s]>0), ...Object.keys(whiteCounts).filter(s=>whiteCounts[s]>0)])];
-  // sort by SIZES order, then unknown
-  allSizes.sort((a,b) => {
+  const allSizes = [...new Set([
+    ...Object.keys(cuNavyCounts), ...Object.keys(tuWhiteCounts), ...Object.keys(tuNavyCounts)
+  ])].sort((a,b) => {
     const ai = SIZES.indexOf(a), bi = SIZES.indexOf(b);
     if (ai === -1 && bi === -1) return a.localeCompare(b);
     if (ai === -1) return 1; if (bi === -1) return -1;
     return ai - bi;
   });
 
-  const totalNavy = Object.values(navyCounts).reduce((s,v)=>s+v,0);
-  const totalWhite = Object.values(whiteCounts).reduce((s,v)=>s+v,0);
-  const totalAll = totalNavy + totalWhite;
+  const totalCuNavy  = Object.values(cuNavyCounts).reduce((s,v)=>s+v,0);
+  const totalTuWhite = Object.values(tuWhiteCounts).reduce((s,v)=>s+v,0);
+  const totalTuNavy  = Object.values(tuNavyCounts).reduce((s,v)=>s+v,0);
+  const totalAll = totalCuNavy + totalTuWhite + totalTuNavy;
 
   let html = `<table>
     <thead><tr>
       <th class="label-col">ไซส์</th>
-      <th><span class="color-navy">สีกรม</span></th>
-      <th><span class="color-white">สีขาว</span></th>
+      <th><span class="color-navy">CU Navy</span></th>
+      <th><span class="color-white">TU White</span></th>
+      <th><span class="color-navy">TU Navy</span></th>
       <th>รวม</th>
     </tr></thead><tbody>`;
 
   allSizes.forEach(s => {
-    const n = navyCounts[s] || 0, w = whiteCounts[s] || 0;
+    const n = cuNavyCounts[s] || 0, w = tuWhiteCounts[s] || 0, t = tuNavyCounts[s] || 0;
     html += `<tr>
       <td class="label-col">${s}</td>
       <td class="${n===0?'zero':''}">${n || '—'}</td>
       <td class="${w===0?'zero':''}">${w || '—'}</td>
-      <td><strong>${n+w}</strong></td>
+      <td class="${t===0?'zero':''}">${t || '—'}</td>
+      <td><strong>${n+w+t}</strong></td>
     </tr>`;
   });
 
   html += `<tr class="total-row">
     <td class="label-col">รวมทั้งหมด</td>
-    <td>${totalNavy}</td>
-    <td>${totalWhite}</td>
+    <td>${totalCuNavy}</td>
+    <td>${totalTuWhite}</td>
+    <td>${totalTuNavy}</td>
     <td>${totalAll}</td>
   </tr></tbody></table>`;
 
   document.getElementById('summary-tables').innerHTML = html;
-  document.getElementById('grand-total-text').textContent = `รวมทั้งหมด ${totalAll} ตัว (กรม ${totalNavy} + ขาว ${totalWhite})`;
+  document.getElementById('grand-total-text').textContent =
+    `รวมทั้งหมด ${totalAll} ตัว (CU Navy ${totalCuNavy} + TU White ${totalTuWhite} + TU Navy ${totalTuNavy})`;
 }
 </script>
 </body>

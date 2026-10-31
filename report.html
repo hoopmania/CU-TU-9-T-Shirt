@@ -22,7 +22,7 @@ body { font-family: 'Sarabun','Noto Sans Thai',sans-serif; background: var(--pap
 .header { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; padding: 16px 20px; }
 .header h1 { font-size: 1.1rem; font-weight: 700; }
 .header p { font-size: 0.82rem; opacity: 0.8; margin-top: 3px; }
-.container { max-width: 720px; margin: 0 auto; padding: 0 14px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 14px; }
 .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-top: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); }
 .card h2 { font-size: 0.92rem; font-weight: 700; color: var(--navy); border-left: 4px solid var(--navy); padding-left: 9px; margin-bottom: 12px; }
 input[type="text"], input[type="password"], input[type="date"] {
@@ -95,8 +95,9 @@ input:focus { outline: none; border-color: var(--navy); }
         <div class="stat-chip"><span class="num" id="st-orders">-</span><span class="lbl">ออร์เดอร์</span></div>
         <div class="stat-chip"><span class="num" id="st-shirts">-</span><span class="lbl">ตัวรวม</span></div>
         <div class="stat-chip money"><span class="num" id="st-revenue">-</span><span class="lbl">ยอดรวม (฿)</span></div>
-        <div class="stat-chip"><span class="num" id="st-navy">-</span><span class="lbl">สีกรม</span></div>
-        <div class="stat-chip"><span class="num" id="st-white">-</span><span class="lbl">สีขาว</span></div>
+        <div class="stat-chip"><span class="num" id="st-navy">-</span><span class="lbl">CU Navy</span></div>
+        <div class="stat-chip"><span class="num" id="st-white">-</span><span class="lbl">TU White</span></div>
+        <div class="stat-chip"><span class="num" id="st-tu">-</span><span class="lbl">TU Navy</span></div>
       </div>
     </div>
 
@@ -132,8 +133,9 @@ input:focus { outline: none; border-color: var(--navy); }
               <th>วันที่</th>
               <th class="num">ออร์เดอร์</th>
               <th class="num">ตัวรวม</th>
-              <th class="num">กรม</th>
-              <th class="num">ขาว</th>
+              <th class="num">CU Navy</th>
+              <th class="num">TU White</th>
+              <th class="num">TU Navy</th>
               <th class="num">ยอดรับโอน (฿)</th>
             </tr>
           </thead>
@@ -198,11 +200,13 @@ function renderStats() {
   const totalShirts = allRows.reduce((s, r) => s + (parseInt(r.qty)||0), 0);
   const navyCount = allRows.filter(r => r.navySize).length;
   const whiteCount = allRows.filter(r => r.whiteSize).length;
+  const tuCount = allRows.filter(r => r.tuNavySize).length;
   document.getElementById('st-orders').textContent = orders.size;
   document.getElementById('st-shirts').textContent = totalShirts;
   document.getElementById('st-revenue').textContent = revenue.toLocaleString();
   document.getElementById('st-navy').textContent = navyCount;
   document.getElementById('st-white').textContent = whiteCount;
+  document.getElementById('st-tu').textContent = tuCount;
 }
 
 function showBreakdown(tab) {
@@ -213,52 +217,52 @@ function showBreakdown(tab) {
   });
 
   const groups = {};
+  const init = () => ({ total: 0, navy: 0, white: 0, tu: 0 });
   if (tab === 'color') {
-    // Expand virtual rows per color
     allRows.forEach(r => {
-      if (r.navySize) {
-        const k = 'สีกรม';
-        if (!groups[k]) groups[k] = { total: 0, navy: 0, white: 0 };
-        groups[k].total++; groups[k].navy++;
-      }
-      if (r.whiteSize) {
-        const k = 'สีขาว';
-        if (!groups[k]) groups[k] = { total: 0, navy: 0, white: 0 };
-        groups[k].total++; groups[k].white++;
-      }
+      if (r.navySize)    { const k='CU Navy';   if (!groups[k]) groups[k]=init(); groups[k].total++; groups[k].navy++; }
+      if (r.whiteSize)   { const k='TU White';  if (!groups[k]) groups[k]=init(); groups[k].total++; groups[k].white++; }
+      if (r.tuNavySize)  { const k='TU Navy';   if (!groups[k]) groups[k]=init(); groups[k].total++; groups[k].tu++; }
     });
   } else if (tab === 'size') {
     allRows.forEach(r => {
-      [[r.navySize,'สีกรม'],[r.whiteSize,'สีขาว']].forEach(([sz, colorLabel]) => {
+      [
+        [r.navySize,   'CU Navy'],
+        [r.whiteSize,  'TU White'],
+        [r.tuNavySize, 'TU Navy'],
+      ].forEach(([sz, colorLabel]) => {
         if (!sz) return;
         const k = `${sz} (${colorLabel})`;
-        if (!groups[k]) groups[k] = { total: 0, navy: 0, white: 0 };
+        if (!groups[k]) groups[k] = init();
         groups[k].total++;
-        if (colorLabel === 'สีกรม') groups[k].navy++; else groups[k].white++;
+        if (colorLabel === 'CU Navy') groups[k].navy++;
+        else if (colorLabel === 'TU White') groups[k].white++;
+        else groups[k].tu++;
       });
     });
   } else {
     allRows.forEach(r => {
       const key = tab === 'team' ? (r.team||'-') : (r.division||'-');
       const qty = parseInt(r.qty)||0;
-      if (!groups[key]) groups[key] = { total: 0, navy: 0, white: 0 };
+      if (!groups[key]) groups[key] = init();
       groups[key].total += qty;
-      if (r.navySize) groups[key].navy++;
-      if (r.whiteSize) groups[key].white++;
+      if (r.navySize)   groups[key].navy++;
+      if (r.whiteSize)  groups[key].white++;
+      if (r.tuNavySize) groups[key].tu++;
     });
   }
 
   const label = tab === 'team' ? 'ทีม' : tab === 'div' ? 'รุ่น' : tab === 'color' ? 'สี' : 'ไซส์';
   document.getElementById('bk-head').innerHTML =
-    `<tr><th>${label}</th><th class="num">ตัวรวม</th><th class="num">สีกรม</th><th class="num">สีขาว</th></tr>`;
+    `<tr><th>${label}</th><th class="num">ตัวรวม</th><th class="num">CU Navy</th><th class="num">TU White</th><th class="num">TU Navy</th></tr>`;
 
   const sorted = Object.entries(groups).sort((a,b) => b[1].total - a[1].total);
   const totalShirts = allRows.reduce((s,r)=>s+(parseInt(r.qty)||0),0);
   document.getElementById('bk-body').innerHTML =
     sorted.map(([k, v]) =>
-      `<tr><td>${k}</td><td class="num">${v.total}</td><td class="num">${v.navy||'-'}</td><td class="num">${v.white||'-'}</td></tr>`
+      `<tr><td>${k}</td><td class="num">${v.total}</td><td class="num">${v.navy||'-'}</td><td class="num">${v.white||'-'}</td><td class="num">${v.tu||'-'}</td></tr>`
     ).join('') +
-    `<tr class="total-row"><td>รวม</td><td class="num">${totalShirts}</td><td class="num">${allRows.filter(r=>r.navySize).length}</td><td class="num">${allRows.filter(r=>r.whiteSize).length}</td></tr>`;
+    `<tr class="total-row"><td>รวม</td><td class="num">${totalShirts}</td><td class="num">${allRows.filter(r=>r.navySize).length}</td><td class="num">${allRows.filter(r=>r.whiteSize).length}</td><td class="num">${allRows.filter(r=>r.tuNavySize).length}</td></tr>`;
 }
 
 function renderDaily() {
@@ -270,23 +274,24 @@ function renderDaily() {
     const ts = r.timestamp ? new Date(r.timestamp) : null;
     if (!ts || isNaN(ts)) return;
     const day = ts.toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' });
-    if (!days[day]) days[day] = { date: day, orders: {}, shirts: 0, navy: 0, white: 0, revenue: 0 };
+    if (!days[day]) days[day] = { date: day, orders: {}, shirts: 0, navy: 0, white: 0, tu: 0, revenue: 0 };
     days[day].shirts += (parseInt(r.qty)||0);
-    if (r.navySize) days[day].navy++;
-    if (r.whiteSize) days[day].white++;
+    if (r.navySize)   days[day].navy++;
+    if (r.whiteSize)  days[day].white++;
+    if (r.tuNavySize) days[day].tu++;
 
     if (!days[day].orders[r.orderId]) {
-      // First entry row of this order on this day
       const time = ts.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
       days[day].orders[r.orderId] = {
         orderId: r.orderId, buyerName: r.buyerName, phone: r.phone,
-        time, grandTotal: parseFloat(r.grandTotal)||0, shirts: 0, navy: 0, white: 0,
+        time, grandTotal: parseFloat(r.grandTotal)||0, shirts: 0, navy: 0, white: 0, tu: 0,
       };
       days[day].revenue += parseFloat(r.grandTotal)||0;
     }
     days[day].orders[r.orderId].shirts += parseInt(r.qty)||0;
-    if (r.navySize) days[day].orders[r.orderId].navy++;
-    if (r.whiteSize) days[day].orders[r.orderId].white++;
+    if (r.navySize)   days[day].orders[r.orderId].navy++;
+    if (r.whiteSize)  days[day].orders[r.orderId].white++;
+    if (r.tuNavySize) days[day].orders[r.orderId].tu++;
   });
 
   document.getElementById('daily-loading').style.display = 'none';
@@ -311,16 +316,20 @@ function renderDaily() {
       <td class="num">${v.shirts}</td>
       <td class="num">${v.navy||'-'}</td>
       <td class="num">${v.white||'-'}</td>
+      <td class="num">${v.tu||'-'}</td>
       <td class="num"><strong>${v.revenue.toLocaleString()}</strong></td>
     </tr>`;
     // Detail rows (hidden by default)
     orderList.forEach(o => {
-      const shirts = [o.navy ? `กรม×${o.navy}` : '', o.white ? `ขาว×${o.white}` : ''].filter(Boolean).join(' ');
+      const maskedPhone = o.phone ? o.phone.slice(0,-2)+'**' : '';
       html += `<tr class="day-detail" id="detail-${di}">
         <td></td>
-        <td style="padding-left:28px;color:var(--muted);">${o.time} น.</td>
-        <td colspan="2">${o.buyerName} <span style="color:var(--muted);font-size:0.78rem;">${shirts}</span></td>
-        <td class="num" colspan="2" style="color:var(--muted);font-size:0.78rem;">${o.phone}</td>
+        <td style="padding-left:28px;color:var(--muted);white-space:nowrap;">${o.time} น.</td>
+        <td>${o.buyerName} <span style="color:var(--muted);font-size:0.78rem;">${maskedPhone}</span></td>
+        <td class="num">${o.shirts || '-'}</td>
+        <td class="num">${o.navy  || '-'}</td>
+        <td class="num">${o.white || '-'}</td>
+        <td class="num">${o.tu    || '-'}</td>
         <td class="num">${o.grandTotal ? o.grandTotal.toLocaleString() : '-'}</td>
       </tr>`;
     });
@@ -331,6 +340,7 @@ function renderDaily() {
   const totalShirts = entries.reduce((s,[,v])=>s+v.shirts,0);
   const totalNavy = entries.reduce((s,[,v])=>s+v.navy,0);
   const totalWhite = entries.reduce((s,[,v])=>s+v.white,0);
+  const totalTu = entries.reduce((s,[,v])=>s+(v.tu||0),0);
   const totalRev = entries.reduce((s,[,v])=>s+v.revenue,0);
   html += `<tr class="total-row">
     <td></td><td>รวม</td>
@@ -338,6 +348,7 @@ function renderDaily() {
     <td class="num">${totalShirts}</td>
     <td class="num">${totalNavy}</td>
     <td class="num">${totalWhite}</td>
+    <td class="num">${totalTu}</td>
     <td class="num">${totalRev.toLocaleString()}</td>
   </tr>`;
 
