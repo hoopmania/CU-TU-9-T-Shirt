@@ -185,7 +185,6 @@ async function loadData() {
     allRows = data.rows || [];
     renderStats();
     showBreakdown(currentBreakdown);
-    populateDateDropdown();
     renderDaily();
   } catch(e) {
     document.getElementById('daily-loading').textContent = '❌ โหลดไม่ได้: ' + e.message;
