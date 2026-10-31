@@ -54,11 +54,15 @@ input:focus { outline: none; border-color: var(--navy); }
 .filter-row label { font-size: 0.83rem; color: var(--muted); }
 
 /* Daily table */
-.day-row { cursor: pointer; }
-.day-row:hover td { background: #f8f9ff; }
-.day-expand { display: none; background: #fafbff; }
-.day-expand.open { display: table-row-group; }
-.day-expand td { padding: 5px 9px 5px 24px; font-size: 0.8rem; color: #444; border-bottom: 1px solid #f0f0f0; }
+.day-row { cursor: pointer; transition: background 0.1s; }
+.day-row:hover td { background: #eef2ff; }
+.day-row.open td { background: #e8edff; font-weight: 700; }
+.day-detail { display: none; }
+.day-detail.open { display: table-row; }
+.day-detail td { padding: 5px 9px 5px 20px; font-size: 0.8rem; color: #444; background: #fafbff; border-bottom: 1px solid #f0f0f0; }
+.day-detail td:last-child { color: var(--success); font-weight: 700; }
+.arrow { display: inline-block; transition: transform 0.2s; font-size: 0.7rem; color: var(--muted); }
+.arrow.open { transform: rotate(90deg); }
 
 .loading { text-align: center; padding: 30px; color: var(--muted); }
 .err-msg { color: var(--danger); font-size: 0.85rem; }
@@ -115,11 +119,8 @@ input:focus { outline: none; border-color: var(--navy); }
 
     <!-- Daily report -->
     <div class="card">
-      <h2>ยอดขายรายวัน</h2>
+      <h2>ยอดขายรายวัน <span style="font-size:0.75rem;font-weight:400;color:var(--muted);">(คลิกที่แถววันที่เพื่อดูรายละเอียด)</span></h2>
       <div class="filter-row">
-        <select id="date-quick" onchange="applyQuickFilter()" style="padding:9px 11px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.88rem;min-width:160px;">
-          <option value="">📅 ทุกวัน</option>
-        </select>
         <button class="btn btn-outline" onclick="loadData()" style="margin-left:auto;">🔄</button>
       </div>
       <div class="loading" id="daily-loading">กำลังโหลด...</div>
@@ -127,12 +128,13 @@ input:focus { outline: none; border-color: var(--navy); }
         <table class="tbl" id="daily-table" style="display:none;">
           <thead>
             <tr>
+              <th style="width:24px;"></th>
               <th>วันที่</th>
               <th class="num">ออร์เดอร์</th>
               <th class="num">ตัวรวม</th>
-              <th class="num">สีกรม</th>
-              <th class="num">สีขาว</th>
-              <th class="num">ยอดรวม (฿)</th>
+              <th class="num">กรม</th>
+              <th class="num">ขาว</th>
+              <th class="num">ยอดรับโอน (฿)</th>
             </tr>
           </thead>
           <tbody id="daily-body"></tbody>
@@ -260,40 +262,32 @@ function showBreakdown(tab) {
     `<tr class="total-row"><td>รวม</td><td class="num">${totalShirts}</td><td class="num">${allRows.filter(r=>r.navySize).length}</td><td class="num">${allRows.filter(r=>r.whiteSize).length}</td></tr>`;
 }
 
-function populateDateDropdown() {
-  const days = new Set();
-  allRows.forEach(r => {
-    const ts = r.timestamp ? new Date(r.timestamp) : null;
-    if (!ts || isNaN(ts)) return;
-    days.add(ts.toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' }));
-  });
-  const sel = document.getElementById('date-quick');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">📅 ทุกวัน</option>' +
-    [...days].sort((a,b) => b.localeCompare(a))
-      .map(d => `<option value="${d}" ${d===cur?'selected':''}>${d}</option>`).join('');
-}
-
-function applyQuickFilter() { renderDaily(); }
-
 function renderDaily() {
-  const filterDay = document.getElementById('date-quick').value;
-
-  // Group by date (from timestamp)
+  // Group by date → orders (first row per orderId only for totals)
   const days = {};
-  const ordersSeen = new Set();
+  const orderFirstRow = {}; // orderId → first row seen
+
   allRows.forEach(r => {
     const ts = r.timestamp ? new Date(r.timestamp) : null;
     if (!ts || isNaN(ts)) return;
     const day = ts.toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' });
-    if (filterDay && day !== filterDay) return;
-    if (!days[day]) days[day] = { orders: new Set(), shirts: 0, navy: 0, white: 0, revenue: 0 };
+    if (!days[day]) days[day] = { date: day, orders: {}, shirts: 0, navy: 0, white: 0, revenue: 0 };
     days[day].shirts += (parseInt(r.qty)||0);
     if (r.navySize) days[day].navy++;
     if (r.whiteSize) days[day].white++;
-    days[day].orders.add(r.orderId);
-    // Only count grandTotal where non-empty (first row per order)
-    if (r.grandTotal) days[day].revenue += parseFloat(r.grandTotal) || 0;
+
+    if (!days[day].orders[r.orderId]) {
+      // First entry row of this order on this day
+      const time = ts.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+      days[day].orders[r.orderId] = {
+        orderId: r.orderId, buyerName: r.buyerName, phone: r.phone,
+        time, grandTotal: parseFloat(r.grandTotal)||0, shirts: 0, navy: 0, white: 0,
+      };
+      days[day].revenue += parseFloat(r.grandTotal)||0;
+    }
+    days[day].orders[r.orderId].shirts += parseInt(r.qty)||0;
+    if (r.navySize) days[day].orders[r.orderId].navy++;
+    if (r.whiteSize) days[day].orders[r.orderId].white++;
   });
 
   document.getElementById('daily-loading').style.display = 'none';
@@ -307,14 +301,56 @@ function renderDaily() {
   document.getElementById('daily-empty').style.display = 'none';
   document.getElementById('daily-table').style.display = 'table';
 
-  const totalOrders = new Set(allRows.map(r => r.orderId)).size;
-  const totalRevenue = allRows.reduce((s, r) => s + (r.entryIndex == 1 ? (parseFloat(r.grandTotal)||0) : 0), 0);
+  let html = '';
+  entries.forEach(([day, v], di) => {
+    const orderList = Object.values(v.orders).sort((a,b) => a.time.localeCompare(b.time));
+    const orderCount = orderList.length;
+    html += `<tr class="day-row" onclick="toggleDay(${di})">
+      <td><span class="arrow" id="arrow-${di}">▶</span></td>
+      <td><strong>${day}</strong></td>
+      <td class="num">${orderCount}</td>
+      <td class="num">${v.shirts}</td>
+      <td class="num">${v.navy||'-'}</td>
+      <td class="num">${v.white||'-'}</td>
+      <td class="num"><strong>${v.revenue.toLocaleString()}</strong></td>
+    </tr>`;
+    // Detail rows (hidden by default)
+    orderList.forEach(o => {
+      const shirts = [o.navy ? `กรม×${o.navy}` : '', o.white ? `ขาว×${o.white}` : ''].filter(Boolean).join(' ');
+      html += `<tr class="day-detail" id="detail-${di}">
+        <td></td>
+        <td style="padding-left:28px;color:var(--muted);">${o.time} น.</td>
+        <td colspan="2">${o.buyerName} <span style="color:var(--muted);font-size:0.78rem;">${shirts}</span></td>
+        <td class="num" colspan="2" style="color:var(--muted);font-size:0.78rem;">${o.phone}</td>
+        <td class="num">${o.grandTotal ? o.grandTotal.toLocaleString() : '-'}</td>
+      </tr>`;
+    });
+  });
 
-  document.getElementById('daily-body').innerHTML =
-    entries.map(([day, v]) =>
-      `<tr><td>${day}</td><td class="num">${v.orders.size}</td><td class="num">${v.shirts}</td><td class="num">${v.navy||'-'}</td><td class="num">${v.white||'-'}</td><td class="num">${v.revenue.toLocaleString()}</td></tr>`
-    ).join('') +
-    `<tr class="total-row"><td>รวม</td><td class="num">${[...entries.reduce((s,[,v])=>{v.orders.forEach(o=>s.add(o));return s;},new Set())].length}</td><td class="num">${entries.reduce((s,[,v])=>s+v.shirts,0)}</td><td class="num">${entries.reduce((s,[,v])=>s+v.navy,0)}</td><td class="num">${entries.reduce((s,[,v])=>s+v.white,0)}</td><td class="num">${entries.reduce((s,[,v])=>s+v.revenue,0).toLocaleString()}</td></tr>`;
+  // Total row
+  const totalOrders = entries.reduce((s,[,v])=>s+Object.keys(v.orders).length,0);
+  const totalShirts = entries.reduce((s,[,v])=>s+v.shirts,0);
+  const totalNavy = entries.reduce((s,[,v])=>s+v.navy,0);
+  const totalWhite = entries.reduce((s,[,v])=>s+v.white,0);
+  const totalRev = entries.reduce((s,[,v])=>s+v.revenue,0);
+  html += `<tr class="total-row">
+    <td></td><td>รวม</td>
+    <td class="num">${totalOrders}</td>
+    <td class="num">${totalShirts}</td>
+    <td class="num">${totalNavy}</td>
+    <td class="num">${totalWhite}</td>
+    <td class="num">${totalRev.toLocaleString()}</td>
+  </tr>`;
+
+  document.getElementById('daily-body').innerHTML = html;
+}
+
+function toggleDay(di) {
+  const details = document.querySelectorAll(`#detail-${di}`);
+  const arrow = document.getElementById(`arrow-${di}`);
+  const isOpen = arrow.classList.contains('open');
+  details.forEach(el => el.classList.toggle('open', !isOpen));
+  arrow.classList.toggle('open', !isOpen);
 }
 
 </script>
