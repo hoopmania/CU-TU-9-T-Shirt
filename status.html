@@ -108,14 +108,17 @@ async function doSearch() {
     });
     area.innerHTML = Object.values(orders).map(o => {
       const r = o.info;
-      const dlv = r.delivery === 'จัดส่ง' ? `📦 จัดส่งถึงบ้าน<br><small>${r.address||''}</small>` : '🤝 รับด้วยตัวเอง';
+      const dlv = r.delivery === 'จัดส่ง' ? `📦 จัดส่งถึงบ้าน<br><small>${r.address||''}</small>`
+               : r.delivery === 'รวมส่ง'  ? `📎 รวมส่งกับออร์เดอร์เดิม`
+               : '🤝 รับด้วยตัวเอง';
       const entries = o.entries.map((e, i) => {
-        const isShip = e.delivery === 'จัดส่ง';
+        const isShip = e.delivery === 'จัดส่ง' || e.delivery === 'รวมส่ง';
         const st = isShip ? 'ส่งที่บ้าน' : (e.status || 'ยังไม่รับ');
         const badgeCls = st === 'รับแล้ว' ? 'badge-received' : st === 'ส่งที่บ้าน' ? 'badge-shipped' : 'badge-pending';
         const shirtDetails = [
-          e.navySize ? `กรม/${e.navySize}` : '',
-          e.whiteSize ? `ขาว/${e.whiteSize}` : '',
+          e.navySize   ? `CU กรมท่า/${e.navySize}`  : '',
+          e.whiteSize  ? `TU ขาว/${e.whiteSize}`     : '',
+          e.tuNavySize ? `TU กรมท่า/${e.tuNavySize}` : '',
         ].filter(Boolean).join(', ') || '-';
         return `<div class="entry-row">
           <div class="en-head">
