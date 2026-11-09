@@ -158,9 +158,9 @@ textarea { min-height: 72px; resize: vertical; }
   <h1>🏀 เสื้อที่ระลึก CU-TU Basketball Alumni #9</h1>
   <p>ราคาตัวละ <strong>300 บาท</strong> &nbsp;|&nbsp; ผ้าฝ้ายเกรดพรีเมี่ยม</p>
 </div>
-<div class="deadline-banner">
-  ⏰ ปิดรับจองวันที่ 8 พฤศจิกายน 2026 เท่านั้น!
-  <span>ล็อตเดียวเท่านั้น — พลาดแล้วอาจหมดโอกาสเป็นเจ้าของ</span>
+<div class="deadline-banner" style="background:#555;">
+  🔒 ปิดรับจองแล้ว — ขอบคุณทุกคำสั่งซื้อนะครับ!
+  <span>หมดเขตรับจอง 8 พฤศจิกายน 2568 · กำลังดำเนินการผลิต</span>
 </div>
 
 <div class="container">
@@ -181,7 +181,19 @@ textarea { min-height: 72px; resize: vertical; }
     </div>
   </div>
 
-  <!-- Buyer info -->
+  <!-- Closed notice -->
+  <div class="card" style="text-align:center; padding:28px 20px; margin-top:20px;">
+    <div style="font-size:2.5rem; margin-bottom:10px;">🔒</div>
+    <div style="font-size:1.1rem; font-weight:700; color:#0a1f5c; margin-bottom:8px;">ปิดรับคำสั่งซื้อแล้ว</div>
+    <div style="font-size:0.9rem; color:#555; line-height:1.7;">
+      หมดเขตรับจองวันที่ 8 พฤศจิกายน 2568<br>
+      ขณะนี้กำลังดำเนินการผลิตและจัดส่ง<br><br>
+      <a href="status.html" style="color:#0a1f5c; font-weight:700; text-decoration:underline;">📦 ตรวจสอบสถานะออร์เดอร์ของคุณ →</a>
+    </div>
+  </div>
+
+  <!-- Buyer info (hidden — orders closed) -->
+  <div id="form-section" style="display:none;">
   <div class="card">
     <h2>ข้อมูลผู้สั่ง</h2>
     <div class="field">
@@ -304,6 +316,8 @@ textarea { min-height: 72px; resize: vertical; }
   </div>
 
   <button id="btn-submit" type="button" onclick="submitOrder()">ส่งคำสั่งซื้อ</button>
+
+  </div><!-- /form-section -->
 
   <div class="admin-nav">
     <a href="status.html">เช็คสถานะออร์เดอร์ของฉัน</a>
