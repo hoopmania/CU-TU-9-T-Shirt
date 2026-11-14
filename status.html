@@ -151,11 +151,11 @@ async function doSearch() {
         <div class="switch-banner" id="${switchId}-banner">
           <div class="sb-title">📍 อยากรับที่สนามวันที่ 22 พ.ย. ไหม?</div>
           <div class="sb-desc">เสื้อจะทยอยจัดส่งวันศุกร์ที่ 20 พ.ย. แต่ถ้าอยากใส่มาวันงาน<br>สามารถเปลี่ยนมารับที่สนามแทนได้เลยครับ<br><small style="color:#999;">⏰ กรุณาเปลี่ยนภายในวันพุธที่ 19 พ.ย. 2569</small></div>
-          <button class="btn-switch" onclick="showConfirm('${r.orderId}','${r.buyerName.replace(/'/g,'\\'')}')">🔄 เปลี่ยนมารับที่สนามวันงาน 22 พ.ย.</button>
+          <button class="btn-switch" onclick="showConfirm('${r.orderId}')">🔄 เปลี่ยนมารับที่สนามวันงาน 22 พ.ย.</button>
         </div>
         <div class="switch-confirm" id="${switchId}-confirm" style="display:none;">
           <p>✅ ยืนยันเปลี่ยน <strong>${r.buyerName}</strong> จาก<br>📦 จัดส่งถึงบ้าน → 📍 รับที่สนามวันเสาร์ที่ 22 พฤศจิกายน 2569</p>
-          <button class="btn-switch" onclick="doSwitch('${r.orderId}','${r.buyerName.replace(/'/g,'\\'')}')">ยืนยัน เปลี่ยนมารับที่สนาม</button>
+          <button class="btn-switch" onclick="doSwitch('${r.orderId}')">ยืนยัน เปลี่ยนมารับที่สนาม</button>
           <button class="btn-cancel" onclick="cancelConfirm('${r.orderId}')">ยกเลิก</button>
         </div>
         <div class="switch-success" id="${switchId}-done" style="display:none;">
@@ -177,7 +177,7 @@ async function doSearch() {
   }
 }
 
-function showConfirm(orderId, name) {
+function showConfirm(orderId) {
   document.getElementById('sw-' + orderId + '-banner').style.display = 'none';
   document.getElementById('sw-' + orderId + '-confirm').style.display = 'block';
 }
@@ -187,7 +187,7 @@ function cancelConfirm(orderId) {
   document.getElementById('sw-' + orderId + '-banner').style.display = 'block';
 }
 
-async function doSwitch(orderId, name) {
+async function doSwitch(orderId) {
   const confirmEl = document.getElementById('sw-' + orderId + '-confirm');
   const btn = confirmEl.querySelector('.btn-switch');
   btn.disabled = true;
