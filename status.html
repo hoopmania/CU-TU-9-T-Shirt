@@ -50,6 +50,19 @@ input:focus { outline: none; border-color: var(--navy); }
 .loading { text-align: center; padding: 24px; color: var(--muted); }
 .back-link { text-align: center; margin-top: 16px; }
 .back-link a { color: var(--navy); font-size: 0.85rem; }
+
+/* Switch-to-pickup banner */
+.switch-banner { background: #fff8e1; border: 1.5px solid #f0cc60; border-radius: 10px; padding: 14px 15px; margin-top: 12px; }
+.switch-banner .sb-title { font-size: 0.95rem; font-weight: 700; color: #7a5c00; margin-bottom: 6px; }
+.switch-banner .sb-desc { font-size: 0.84rem; color: #666; line-height: 1.6; margin-bottom: 10px; }
+.btn-switch { display: block; width: 100%; padding: 11px; background: linear-gradient(135deg, #e8a200, #c47d00); color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+.btn-switch:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-cancel { display: block; width: 100%; padding: 9px; background: #eee; color: #555; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 8px; }
+.switch-confirm { background: #fff3e0; border: 1.5px solid #f0a000; border-radius: 10px; padding: 14px 15px; margin-top: 12px; }
+.switch-confirm p { font-size: 0.88rem; color: #333; line-height: 1.7; margin-bottom: 12px; }
+.switch-success { background: #d1e7dd; border: 1.5px solid #2f7d4f; border-radius: 10px; padding: 14px 15px; margin-top: 12px; text-align: center; }
+.switch-success .ss-icon { font-size: 2rem; }
+.switch-success p { font-size: 0.9rem; color: #2f7d4f; font-weight: 700; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -132,6 +145,23 @@ async function doSearch() {
           </div>
         </div>`;
       }).join('');
+      const canSwitch = r.delivery === 'จัดส่ง';
+      const switchId = 'sw-' + r.orderId;
+      const switchBanner = canSwitch ? `
+        <div class="switch-banner" id="${switchId}-banner">
+          <div class="sb-title">📍 อยากรับที่สนามวันที่ 22 พ.ย. ไหม?</div>
+          <div class="sb-desc">เสื้อจะทยอยจัดส่งวันศุกร์ที่ 20 พ.ย. แต่ถ้าอยากใส่มาวันงาน<br>สามารถเปลี่ยนมารับที่สนามแทนได้เลยครับ</div>
+          <button class="btn-switch" onclick="showConfirm('${r.orderId}','${r.buyerName.replace(/'/g,'\\'')}')">🔄 เปลี่ยนมารับที่สนาม วันที่ 22 พ.ย.</button>
+        </div>
+        <div class="switch-confirm" id="${switchId}-confirm" style="display:none;">
+          <p>✅ ยืนยันเปลี่ยน <strong>${r.buyerName}</strong> จาก<br>📦 จัดส่งถึงบ้าน → 📍 รับที่สนามวันที่ 22 พ.ย. 2568</p>
+          <button class="btn-switch" onclick="doSwitch('${r.orderId}','${r.buyerName.replace(/'/g,'\\'')}')">ยืนยัน เปลี่ยนมารับที่สนาม</button>
+          <button class="btn-cancel" onclick="cancelConfirm('${r.orderId}')">ยกเลิก</button>
+        </div>
+        <div class="switch-success" id="${switchId}-done" style="display:none;">
+          <div class="ss-icon">✅</div>
+          <p>เปลี่ยนสำเร็จ! ไม่ต้องรอพัสดุแล้วนะครับ<br>เจอกันที่สนาม วันเสาร์ที่ 22 พ.ย. 🏀</p>
+        </div>` : '';
       return `<div class="card">
         <div class="result-head">
           <div class="name">${r.buyerName}</div>
@@ -139,10 +169,42 @@ async function doSearch() {
           <div class="meta" style="margin-top:4px;">ยอดรวม: <strong>${(r.grandTotal||0).toLocaleString()} ฿</strong></div>
         </div>
         ${entries}
+        ${switchBanner}
       </div>`;
     }).join('');
   } catch(e) {
     area.innerHTML = '<div class="card"><div class="not-found">เกิดข้อผิดพลาด: ' + e.message + '</div></div>';
+  }
+}
+
+function showConfirm(orderId, name) {
+  document.getElementById('sw-' + orderId + '-banner').style.display = 'none';
+  document.getElementById('sw-' + orderId + '-confirm').style.display = 'block';
+}
+
+function cancelConfirm(orderId) {
+  document.getElementById('sw-' + orderId + '-confirm').style.display = 'none';
+  document.getElementById('sw-' + orderId + '-banner').style.display = 'block';
+}
+
+async function doSwitch(orderId, name) {
+  const confirmEl = document.getElementById('sw-' + orderId + '-confirm');
+  const btn = confirmEl.querySelector('.btn-switch');
+  btn.disabled = true;
+  btn.textContent = 'กำลังอัปเดต...';
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'switchToPickup', orderId, pass: 'cutuba9' }),
+    });
+    const data = await resp.json();
+    if (data.status !== 'ok') throw new Error(data.message || 'เกิดข้อผิดพลาด');
+    confirmEl.style.display = 'none';
+    document.getElementById('sw-' + orderId + '-done').style.display = 'block';
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'ยืนยัน เปลี่ยนมารับที่สนาม';
+    alert('เกิดข้อผิดพลาด: ' + e.message + '\nกรุณาลองใหม่ หรือติดต่อผู้ดูแล');
   }
 }
 </script>
