@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คู่มือแจกเสื้อ — CU-TU #9</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap');
+:root {
+  --navy: #0a1f5c;
+  --navy2: #1a3a9c;
+  --green: #2f7d4f;
+  --green-bg: #d1e7dd;
+  --amber: #856404;
+  --amber-bg: #fff3cd;
+  --paper: #f4f6fb;
+  --card: #ffffff;
+  --line: #dde2f0;
+  --muted: #666;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun', sans-serif; background: var(--paper); color: #1a1a1a; font-size: 15px; line-height: 1.65; padding-bottom: 60px; }
+
+.hero { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; padding: 28px 20px 24px; text-align: center; }
+.hero h1 { font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; }
+.hero p { font-size: 0.88rem; opacity: 0.85; }
+
+.container { max-width: 540px; margin: 0 auto; padding: 0 16px; }
+
+/* CTA button */
+.btn-cta { display: block; margin: 20px 0; padding: 15px 20px; background: var(--navy); color: #fff; text-align: center; border-radius: 10px; font-size: 1.05rem; font-weight: 800; text-decoration: none; box-shadow: 0 3px 10px rgba(10,31,92,0.25); }
+.btn-cta .sub { font-size: 0.78rem; font-weight: 400; opacity: 0.85; margin-top: 3px; display: block; }
+
+/* Info box */
+.info-box { background: var(--amber-bg); border: 1.5px solid #f0cc60; border-radius: var(--radius); padding: 14px 16px; margin: 14px 0; font-size: 0.88rem; }
+.info-box .title { font-weight: 700; color: var(--amber); margin-bottom: 6px; font-size: 0.95rem; }
+.info-box ul { padding-left: 18px; }
+.info-box li { margin-bottom: 4px; }
+.info-box .pass { font-size: 1.3rem; font-weight: 800; letter-spacing: 2px; color: var(--navy); display: block; text-align: center; margin: 8px 0; background: #fff; border-radius: 6px; padding: 6px; }
+
+/* Step */
+.step { margin-top: 22px; }
+.step-num { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.step-num .circle { width: 32px; height: 32px; background: var(--navy); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.95rem; flex-shrink: 0; }
+.step-num .label { font-size: 1rem; font-weight: 700; color: var(--navy); }
+.step p { font-size: 0.9rem; color: #333; margin-bottom: 10px; line-height: 1.7; }
+
+/* Mock screen */
+.mock { background: #fff; border: 2px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 8px; }
+.mock-bar { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; padding: 10px 14px; font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.mock-bar .dots { display: flex; gap: 5px; margin-right: 4px; }
+.mock-bar .dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+.mock-body { padding: 14px; }
+.mock-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.mock-input { background: #f5f5f5; border: 1.5px solid var(--line); border-radius: 6px; padding: 9px 12px; font-size: 0.88rem; color: #888; margin-bottom: 10px; }
+.mock-input.active { border-color: var(--navy); color: #1a1a1a; background: #fff; }
+.mock-btn { background: var(--navy); color: #fff; border-radius: 6px; padding: 9px 14px; font-size: 0.85rem; font-weight: 700; text-align: center; display: inline-block; }
+.mock-btn.green { background: var(--green); }
+.mock-btn.full { display: block; text-align: center; }
+
+/* Result card mock */
+.mock-result { border: 1.5px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+.mock-result .rname { font-weight: 700; font-size: 0.95rem; color: var(--navy); }
+.mock-result .rmeta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.mock-result .rshirt { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+.shirt-tag { padding: 3px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; }
+.tag-cu { background: #0a1f5c; color: #fff; }
+.tag-tuw { background: #5b7bd4; color: #fff; }
+.tag-tun { background: #1a3a9c; color: #fff; }
+.mock-result .rbtn { margin-top: 10px; }
+
+.badge-done { background: var(--green-bg); color: var(--green); padding: 3px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; }
+.badge-pending { background: var(--amber-bg); color: var(--amber); padding: 3px 10px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; }
+
+/* Table mock (desktop) */
+.mock-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+.mock-table th { background: #eef0f8; color: var(--navy); padding: 5px 7px; text-align: left; font-weight: 700; border: 1px solid var(--line); }
+.mock-table td { padding: 5px 7px; border: 1px solid var(--line); }
+.mock-table tr.done td { background: #d1e7dd; }
+
+/* Success flash */
+.success-flash { background: var(--green-bg); border: 1.5px solid var(--green); border-radius: 8px; padding: 12px 14px; text-align: center; }
+.success-flash .big { font-size: 1.8rem; }
+.success-flash p { font-weight: 700; color: var(--green); font-size: 0.9rem; margin-top: 4px; }
+
+/* Shirt bundle guide */
+.bundle-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 10px 0; }
+.bundle-box { border-radius: 8px; padding: 10px 8px; text-align: center; }
+.bundle-box .icon { font-size: 1.4rem; }
+.bundle-box .name { font-size: 0.75rem; font-weight: 700; margin-top: 4px; }
+.bundle-box .desc { font-size: 0.7rem; color: #555; margin-top: 2px; }
+
+.section-title { background: var(--navy); color: #fff; padding: 8px 14px; font-weight: 700; font-size: 0.9rem; border-radius: 8px; margin-top: 24px; margin-bottom: 2px; }
+
+.caption { font-size: 0.78rem; color: var(--muted); text-align: center; margin-top: 4px; margin-bottom: 14px; font-style: italic; }
+
+.tip { background: #f0f4ff; border-left: 4px solid var(--navy); padding: 10px 13px; border-radius: 0 8px 8px 0; font-size: 0.85rem; margin: 10px 0; }
+.tip strong { color: var(--navy); }
+
+.footer { text-align: center; margin-top: 32px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🏀 คู่มือแจกเสื้อ — วันงาน</h1>
+  <p>CU-TU Basketball Alumni #9 &nbsp;|&nbsp; อาทิตย์ที่ 22 พฤศจิกายน 2569</p>
+</div>
+
+<div class="container">
+
+  <!-- CTA -->
+  <a class="btn-cta" href="checkin.html">
+    📋 เปิดฟอร์มเช็คชื่อรับชุด
+    <span class="sub">hoopmania.github.io/CU-TU-9-T-Shirt/checkin.html</span>
+  </a>
+
+  <!-- Password -->
+  <div class="info-box">
+    <div class="title">🔑 รหัสผ่านเข้าระบบ</div>
+    <span class="pass">cutuba9</span>
+    <div style="font-size:0.8rem;color:#666;text-align:center;">บันทึกหน้านี้ไว้ในโทรศัพท์ก่อนไปวันงานด้วยนะครับ</div>
+  </div>
+
+  <!-- Shirt bundles -->
+  <div class="section-title">📦 การจัดมัดเสื้อ</div>
+  <div class="mock" style="margin-top:8px;">
+    <div class="mock-body">
+      <p style="font-size:0.88rem;margin-bottom:10px;">เสื้อแต่ละมัดจะถูกแยกตามแบบและไซส์ ติดป้ายชัดเจน ค้นหาตามข้อมูลในระบบแล้วหยิบให้ครับ</p>
+      <div class="bundle-grid">
+        <div class="bundle-box" style="background:#0a1f5c10;border:2px solid #0a1f5c;">
+          <div class="icon">👕</div>
+          <div class="name" style="color:#0a1f5c;">CU Navy</div>
+          <div class="desc">กรมท่า จุฬาฯ</div>
+        </div>
+        <div class="bundle-box" style="background:#5b7bd420;border:2px solid #5b7bd4;">
+          <div class="icon">👕</div>
+          <div class="name" style="color:#1a3a9c;">TU White</div>
+          <div class="desc">ขาว ธรรมศาสตร์</div>
+        </div>
+        <div class="bundle-box" style="background:#1a3a9c15;border:2px solid #1a3a9c;">
+          <div class="icon">👕</div>
+          <div class="name" style="color:#1a3a9c;">TU Navy</div>
+          <div class="desc">กรมท่า ธรรมศาสตร์</div>
+        </div>
+      </div>
+      <div class="tip"><strong>เปิดข้อมูลในระบบก่อน</strong> แล้วค่อยหยิบเสื้อให้ตามที่โชว์ในจอ — ไม่ต้องจำเองครับ</div>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step">
+    <div class="step-num">
+      <div class="circle">1</div>
+      <div class="label">เปิดฟอร์มและเข้าสู่ระบบ</div>
+    </div>
+    <p>กดลิงค์ด้านบน หรือเปิด <strong>checkin.html</strong> ในโทรศัพท์ จากนั้นพิมพ์รหัสผ่าน <strong>cutuba9</strong> แล้วกด "เข้าสู่ระบบ"</p>
+    <div class="mock">
+      <div class="mock-bar">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        🏀 Admin: เช็คชื่อรับชุด
+      </div>
+      <div class="mock-body">
+        <div class="mock-label">รหัสผ่าน admin</div>
+        <div class="mock-input active">cutuba9</div>
+        <div class="mock-btn" style="display:inline-block;">เข้าสู่ระบบ</div>
+      </div>
+    </div>
+    <div class="caption">พิมพ์รหัสผ่าน cutuba9 แล้วกดปุ่ม</div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step">
+    <div class="step-num">
+      <div class="circle">2</div>
+      <div class="label">หน้าหลัก — ระบบโหลดข้อมูลขึ้นมา</div>
+    </div>
+    <p>ระบบจะโชว์สรุปยอด และรายการออร์เดอร์ที่ <strong>รับที่สนาม/นัดรับ</strong> ทั้งหมด (กรองจัดส่งออกไว้แล้ว)</p>
+    <div class="mock">
+      <div class="mock-bar">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        🏀 Admin: เช็คชื่อรับชุด
+      </div>
+      <div class="mock-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:12px;">
+          <div style="background:#eef0f8;border-radius:7px;padding:8px;text-align:center;"><div style="font-size:1.2rem;font-weight:800;color:#0a1f5c;">14</div><div style="font-size:0.68rem;color:#666;">ออร์เดอร์</div></div>
+          <div style="background:#eef0f8;border-radius:7px;padding:8px;text-align:center;"><div style="font-size:1.2rem;font-weight:800;color:#0a1f5c;">25</div><div style="font-size:0.68rem;color:#666;">ตัวรวม</div></div>
+          <div style="background:#fff3cd;border-radius:7px;padding:8px;text-align:center;"><div style="font-size:1.2rem;font-weight:800;color:#856404;">12</div><div style="font-size:0.68rem;color:#666;">ยังไม่รับ</div></div>
+          <div style="background:#d1e7dd;border-radius:7px;padding:8px;text-align:center;"><div style="font-size:1.2rem;font-weight:800;color:#2f7d4f;">2</div><div style="font-size:0.68rem;color:#666;">รับแล้ว</div></div>
+        </div>
+        <div class="mock-input active" style="margin-bottom:6px;">🔍 ค้นหาชื่อ / โทร...</div>
+        <div style="font-size:0.75rem;color:#666;">▼ รายการออร์เดอร์ รับที่สนาม/นัดรับ ทั้งหมด</div>
+      </div>
+    </div>
+    <div class="caption">ตัวเลขยอดรับของที่มุมบนขวาคืออัปเดตสดครับ</div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step">
+    <div class="step-num">
+      <div class="circle">3</div>
+      <div class="label">ค้นหาชื่อหรือเบอร์โทร</div>
+    </div>
+    <p>พิมพ์ชื่อ (บางส่วน) หรือเบอร์โทรของคนที่มารับ ระบบจะกรองรายการให้ทันที</p>
+    <div class="mock">
+      <div class="mock-bar">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        รายการออร์เดอร์
+      </div>
+      <div class="mock-body">
+        <div class="mock-input active" style="margin-bottom:10px;">สมชาย</div>
+        <table class="mock-table">
+          <thead><tr><th>ชื่อ</th><th>CU Navy</th><th>TU White</th><th>TU Navy</th><th>จำนวน</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>สมชาย ศรี...</strong><br><span style="font-size:0.68rem;color:#888;">ทีมจุฬา · รุ่น 41</span></td>
+              <td>-</td><td>-</td><td>2XL</td><td style="text-align:center;">1</td>
+              <td><span style="background:#2f7d4f;color:#fff;padding:3px 7px;border-radius:5px;font-size:0.72rem;font-weight:700;white-space:nowrap;">✅ รับชุดแล้ว</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="caption">พิมพ์แค่ส่วนหนึ่งของชื่อก็พอครับ ระบบ filter ให้เอง</div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step">
+    <div class="step-num">
+      <div class="circle">4</div>
+      <div class="label">หยิบเสื้อให้ — แล้วกด "รับชุดแล้ว"</div>
+    </div>
+    <p>ตรวจสอบ <strong>แบบ + ไซส์</strong> จากคอลัมน์ในตาราง หยิบเสื้อให้ถูกต้อง จากนั้นกดปุ่ม <span style="background:#2f7d4f;color:#fff;padding:2px 8px;border-radius:5px;font-size:0.82rem;font-weight:700;">✅ รับชุดแล้ว</span> แถวนั้นจะเปลี่ยนเป็นสีเขียวทันที</p>
+    <div class="mock">
+      <div class="mock-bar">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        กด "รับชุดแล้ว"
+      </div>
+      <div class="mock-body">
+        <table class="mock-table">
+          <thead><tr><th>ชื่อ</th><th>CU Navy</th><th>TU White</th><th>TU Navy</th><th></th></tr></thead>
+          <tbody>
+            <tr class="done">
+              <td><strong>สมชาย ศรี...</strong></td>
+              <td>-</td><td>-</td><td>2XL</td>
+              <td><span style="color:#2f7d4f;font-weight:700;font-size:0.78rem;">✅ รับแล้ว</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="success-flash" style="margin-top:10px;">
+          <div class="big">✅</div>
+          <p>บันทึกสำเร็จ — แถวเปลี่ยนเป็นสีเขียว</p>
+        </div>
+      </div>
+    </div>
+    <div class="caption">ระบบบันทึกลง Google Sheet ทันที ไม่ต้องกด save อะไรเพิ่มครับ</div>
+  </div>
+
+  <!-- Tips -->
+  <div class="section-title" style="margin-top:28px;">💡 เคล็ดลับสำหรับวันงาน</div>
+  <div class="mock" style="margin-top:8px;">
+    <div class="mock-body" style="padding:14px 16px;">
+      <ul style="padding-left:18px;font-size:0.88rem;line-height:2;">
+        <li>เปิดหน้านี้ไว้ในโทรศัพท์ก่อนไปวันงาน</li>
+        <li>ใช้ wifi หรือสัญญาณดีๆ — ระบบต้องส่งข้อมูลขึ้น Google</li>
+        <li>ถ้าปุ่ม "รับชุดแล้ว" ไม่ตอบสนอง ลอง <strong>🔄 รีโหลดหน้า</strong> แล้วล็อกอินใหม่</li>
+        <li>คนที่เปลี่ยนมารับที่สนาม (เดิมสั่งจัดส่ง) จะขึ้นในรายการด้วยครับ</li>
+        <li>กรองดู "ทุกรายการ" ถ้าอยากเห็นออร์เดอร์จัดส่งด้วย</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CTA again -->
+  <a class="btn-cta" href="checkin.html" style="margin-top:28px;">
+    📋 เปิดฟอร์มเช็คชื่อรับชุด →
+    <span class="sub">กดเพื่อเริ่มใช้งานได้เลย</span>
+  </a>
+
+  <div class="footer">
+    CU-TU Basketball Alumni #9 — คู่มือแจกเสื้อ วันงาน 22 พ.ย. 2569
+  </div>
+
+</div>
+</body>
+</html>

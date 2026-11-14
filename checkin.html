@@ -65,6 +65,11 @@ select.status-sel { padding: 4px 6px; border: 1.5px solid var(--line); border-ra
 .tab { padding: 7px 14px; background: #eef0f8; border: none; border-radius: 6px; font-size: 0.83rem; font-weight: 600; color: var(--navy); cursor: pointer; font-family: inherit; }
 .tab.active { background: var(--navy); color: #fff; }
 
+/* Quick receive button */
+.btn-receive { padding: 6px 12px; background: var(--success); color: #fff; border: none; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.btn-receive:disabled { opacity: 0.4; cursor: not-allowed; }
+.received-mark { color: var(--success); font-weight: 700; font-size: 0.82rem; }
+
 /* Stats bar */
 .stats-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .stat-chip { flex: 1; min-width: 90px; background: #eef0f8; border-radius: 8px; padding: 9px 12px; text-align: center; }
@@ -129,16 +134,9 @@ select.status-sel { padding: 4px 6px; border: 1.5px solid var(--line); border-ra
       <h2>รายการออร์เดอร์</h2>
       <div class="search-row">
         <input type="text" id="search-box" placeholder="ค้นหาชื่อ / โทร..." oninput="renderOrders()">
-        <select id="filter-status" onchange="renderOrders()" style="padding:9px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.9rem;">
-          <option value="">ทุกสถานะ</option>
-          <option value="รับคำสั่งซื้อแล้ว">รับคำสั่งซื้อแล้ว</option>
-          <option value="ส่งคำสั่งซื้อไปโรงงาน">ส่งคำสั่งซื้อไปโรงงาน</option>
-          <option value="โรงงานกำลังผลิต">โรงงานกำลังผลิต</option>
-          <option value="ผลิตเสร็จแล้ว">ผลิตเสร็จแล้ว</option>
-          <option value="อยู่ในระหว่างจัดส่ง">อยู่ในระหว่างจัดส่ง</option>
-          <option value="จัดส่งเรียบร้อยแล้ว">จัดส่งเรียบร้อยแล้ว</option>
-          <option value="อยู่ในระหว่างนัดรับ">อยู่ในระหว่างนัดรับ</option>
-          <option value="รับเสื้อเรียบร้อยแล้ว">รับเสื้อเรียบร้อยแล้ว</option>
+        <select id="filter-delivery" onchange="renderOrders()" style="padding:9px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;font-size:0.9rem;">
+          <option value="pickup">🤝 รับที่สนาม/นัดรับ</option>
+          <option value="">ทุกรายการ</option>
         </select>
         <button class="btn btn-outline btn-sm" onclick="loadData()">🔄</button>
       </div>
@@ -159,6 +157,7 @@ select.status-sel { padding: 4px 6px; border: 1.5px solid var(--line); border-ra
               <th>TU Navy</th>
               <th>จำนวน</th>
               <th>สถานะ</th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="orders-body"></tbody>
@@ -269,12 +268,12 @@ function renderSummary() {
 
 function renderOrders() {
   const q = document.getElementById('search-box').value.toLowerCase();
-  const sf = document.getElementById('filter-status').value;
+  const df = document.getElementById('filter-delivery').value;
   const filtered = allRows.filter(r => {
     const matchQ = !q || (r.buyerName||'').toLowerCase().includes(q) || (r.phone||'').includes(q) || (r.forWhom||'').toLowerCase().includes(q);
-    const rowStatus = r.delivery === 'ship' ? 'ส่งที่บ้าน' : (r.status || 'ยังไม่รับ');
-    const matchS = !sf || rowStatus === sf;
-    return matchQ && matchS;
+    const isPickup = r.delivery !== 'จัดส่ง' && r.delivery !== 'รวมส่ง';
+    const matchD = df === 'pickup' ? isPickup : true;
+    return matchQ && matchD;
   });
 
   const tbody = document.getElementById('orders-body');
@@ -289,6 +288,7 @@ function renderOrders() {
     tbody.innerHTML = filtered.map((r, i) => {
       const isShip = r.delivery === 'จัดส่ง';
       const st = r.status || 'รับคำสั่งซื้อแล้ว';
+      const isDone = st === 'รับเสื้อเรียบร้อยแล้ว';
       const shipOpts = ['รับคำสั่งซื้อแล้ว','ส่งคำสั่งซื้อไปโรงงาน','โรงงานกำลังผลิต','ผลิตเสร็จแล้ว','อยู่ในระหว่างจัดส่ง','จัดส่งเรียบร้อยแล้ว'];
       const pickOpts = ['รับคำสั่งซื้อแล้ว','ส่งคำสั่งซื้อไปโรงงาน','โรงงานกำลังผลิต','ผลิตเสร็จแล้ว','อยู่ในระหว่างนัดรับ','รับเสื้อเรียบร้อยแล้ว'];
       const opts = (isShip ? shipOpts : pickOpts).map(v=>`<option value="${v}" ${st===v?'selected':''}>${v}</option>`).join('');
@@ -306,8 +306,35 @@ function renderOrders() {
         <td>${r.tuNavySize||'-'}</td>
         <td style="text-align:center;">${r.qty||0}</td>
         <td class="status-cell">${statusCell}</td>
+        <td>${isDone ? '' : `<button class="btn-receive" id="rcv-${r.rowIndex}" onclick="quickReceive('${r.rowIndex}','${r.orderId}',this)">✅ รับชุดแล้ว</button>`}</td>
       </tr>`;
     }).join('');
+  }
+}
+
+async function quickReceive(rowIndex, orderId, btn) {
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'updateStatus', rowIndex, orderId, status: 'รับเสื้อเรียบร้อยแล้ว', pass: ADMIN_PASS })
+    });
+    const data = await resp.json();
+    if (data.status !== 'ok') throw new Error(data.message);
+    const row = allRows.find(r => String(r.rowIndex) === String(rowIndex));
+    if (row) row.status = 'รับเสื้อเรียบร้อยแล้ว';
+    btn.closest('tr').style.background = '#d1e7dd';
+    btn.replaceWith(Object.assign(document.createElement('span'), { className: 'received-mark', textContent: '✅ รับแล้ว' }));
+    // update dropdown
+    const sel = btn.closest('tr').querySelector('.status-sel');
+    if (sel) { sel.value = 'รับเสื้อเรียบร้อยแล้ว'; }
+    renderStats();
+    renderSummary();
+  } catch(e) {
+    alert('อัปเดตไม่ได้: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '✅ รับชุดแล้ว';
   }
 }
 
