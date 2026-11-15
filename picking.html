@@ -84,7 +84,6 @@ table.pick-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         <select id="filter-delivery" onchange="renderList()">
           <option value="">ทุกวิธีรับ</option>
           <option value="จัดส่ง">📦 จัดส่ง</option>
-          <option value="รวมส่ง">📎 รวมส่ง</option>
           <option value="รับเอง">🤝 รับเอง</option>
         </select>
       </div>
@@ -143,26 +142,11 @@ function renderList() {
     orders[r.orderId].entries.push(r);
   });
 
-  // Attach "รวมส่ง" sub-orders onto their parent order
-  Object.values(orders).forEach(o => {
-    if (o.info.delivery !== 'รวมส่ง') return;
-    const note = o.info.note || '';
-    const m = note.match(/รวมกับ\s*(CU\w+)/);
-    if (!m) return;
-    const parentId = m[1];
-    if (orders[parentId]) {
-      if (!orders[parentId].combined) orders[parentId].combined = [];
-      orders[parentId].combined.push(o);
-    }
-  });
-
   let orderArr = Object.values(orders).filter(o => {
-    if (o.info.delivery === 'รวมส่ง') return false; // hidden — shown under parent
     const r = o.info;
     const matchQ = !q || (r.buyerName||'').toLowerCase().includes(q)
-      || (r.phone||'').includes(q) || (r.orderId||'').toLowerCase().includes(q)
-      || (o.combined||[]).some(c => (c.info.buyerName||'').toLowerCase().includes(q) || (c.info.phone||'').includes(q));
-    const matchD = !dlv || r.delivery === dlv || (dlv === 'รวมส่ง' && (o.combined||[]).length > 0);
+      || (r.phone||'').includes(q) || (r.orderId||'').toLowerCase().includes(q);
+    const matchD = !dlv || r.delivery === dlv;
     return matchQ && matchD;
   });
 
@@ -170,13 +154,11 @@ function renderList() {
   const totalOrders = orderArr.length;
   const totalShirts = orderArr.reduce((s,o) => s + o.entries.reduce((a,r)=>a+(parseInt(r.qty)||0),0), 0);
   const shipOrders = orderArr.filter(o => o.info.delivery === 'จัดส่ง').length;
-  const combineOrders = orderArr.filter(o => o.info.delivery === 'รวมส่ง').length;
   const pickupOrders = orderArr.filter(o => o.info.delivery === 'รับเอง').length;
   document.getElementById('stats-row').innerHTML = `
     <div class="stat"><span class="num">${totalOrders}</span><span class="lbl">ออร์เดอร์</span></div>
     <div class="stat"><span class="num">${totalShirts}</span><span class="lbl">ตัวรวม</span></div>
     <div class="stat"><span class="num">${shipOrders}</span><span class="lbl">📦 จัดส่ง</span></div>
-    <div class="stat"><span class="num">${combineOrders}</span><span class="lbl">📎 รวมส่ง</span></div>
     <div class="stat"><span class="num">${pickupOrders}</span><span class="lbl">🤝 รับเอง</span></div>`;
 
   const el = document.getElementById('order-list');
@@ -185,12 +167,9 @@ function renderList() {
   el.innerHTML = orderArr.map(o => {
     const r = o.info;
     const isShip = r.delivery === 'จัดส่ง';
-    const isCombine = r.delivery === 'รวมส่ง';
     const badge = isShip
       ? '<span class="badge badge-ship">📦 จัดส่ง</span>'
-      : isCombine
-        ? '<span class="badge badge-combine">📎 รวมส่ง</span>'
-        : '<span class="badge badge-pickup">🤝 รับเอง</span>';
+      : '<span class="badge badge-pickup">🤝 รับเอง</span>';
 
     const addrLine = isShip && r.address ? `<div class="addr">📍 ${r.address}</div>` : '';
     const combined = o.combined || [];

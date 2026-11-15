@@ -271,7 +271,7 @@ function renderOrders() {
   const df = document.getElementById('filter-delivery').value;
   const filtered = allRows.filter(r => {
     const matchQ = !q || (r.buyerName||'').toLowerCase().includes(q) || (r.phone||'').includes(q) || (r.forWhom||'').toLowerCase().includes(q);
-    const isPickup = r.delivery !== 'จัดส่ง' && r.delivery !== 'รวมส่ง';
+    const isPickup = r.delivery !== 'จัดส่ง';
     const matchD = df === 'pickup' ? isPickup : true;
     return matchQ && matchD;
   });
