@@ -153,13 +153,19 @@ function renderList() {
   // Stats
   const totalOrders = orderArr.length;
   const totalShirts = orderArr.reduce((s,o) => s + o.entries.reduce((a,r)=>a+(parseInt(r.qty)||0),0), 0);
-  const shipOrders = orderArr.filter(o => o.info.delivery === 'จัดส่ง').length;
-  const pickupOrders = orderArr.filter(o => o.info.delivery === 'รับเอง').length;
+  const shipArr = orderArr.filter(o => o.info.delivery === 'จัดส่ง');
+  const pickupArr = orderArr.filter(o => o.info.delivery === 'รับเอง');
+  const shipOrders = shipArr.length;
+  const pickupOrders = pickupArr.length;
+  const shipShirts = shipArr.reduce((s,o) => s + o.entries.reduce((a,r)=>a+(parseInt(r.qty)||0),0), 0);
+  const pickupShirts = pickupArr.reduce((s,o) => s + o.entries.reduce((a,r)=>a+(parseInt(r.qty)||0),0), 0);
   document.getElementById('stats-row').innerHTML = `
     <div class="stat"><span class="num">${totalOrders}</span><span class="lbl">ออร์เดอร์</span></div>
     <div class="stat"><span class="num">${totalShirts}</span><span class="lbl">ตัวรวม</span></div>
-    <div class="stat"><span class="num">${shipOrders}</span><span class="lbl">📦 จัดส่ง</span></div>
-    <div class="stat"><span class="num">${pickupOrders}</span><span class="lbl">🤝 รับเอง</span></div>`;
+    <div class="stat"><span class="num">${shipOrders}</span><span class="lbl">📦 จัดส่ง (ออร์เดอร์)</span></div>
+    <div class="stat"><span class="num">${shipShirts}</span><span class="lbl">📦 จัดส่ง (ตัว)</span></div>
+    <div class="stat"><span class="num">${pickupOrders}</span><span class="lbl">🤝 รับเอง (ออร์เดอร์)</span></div>
+    <div class="stat"><span class="num">${pickupShirts}</span><span class="lbl">🤝 รับเอง (ตัว)</span></div>`;
 
   const el = document.getElementById('order-list');
   if (orderArr.length === 0) { el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:24px;">ไม่มีข้อมูล</p>'; return; }
