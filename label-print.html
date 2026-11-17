@@ -95,6 +95,13 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
 .lbl-shirt-row { font-size: 8pt; font-weight: 700; line-height: 1.5; color: #111; }
 .lbl-shirt-who { font-size: 6.5pt; font-weight: 400; color: #777; }
 
+/* Page break between groups */
+.page-break {
+  grid-column: 1 / -1;
+  break-before: page;
+  page-break-before: always;
+}
+
 /* Print — sheet 173×222mm, margins: top/bottom 1.5mm, left/right 6mm
    col-gap 3mm, row-gap 3mm → 2×6 = 12 labels */
 @media print {
@@ -171,7 +178,18 @@ function applyFilter() {
   const shown = filter === 'all' ? allOrders : allOrders.filter(o => o.info.delivery === filter);
   document.getElementById('status').textContent =
     `แสดง ${shown.length} ลาเบล จากทั้งหมด ${allOrders.length}`;
-  document.getElementById('label-grid').innerHTML = shown.map(renderLabel).join('');
+
+  // Insert page break between จัดส่ง and รับเอง groups
+  if (filter === 'all') {
+    const shipLabels  = shown.filter(o => o.info.delivery === 'จัดส่ง').map(renderLabel).join('');
+    const pickupLabels = shown.filter(o => o.info.delivery === 'รับเอง').map(renderLabel).join('');
+    const pageBreak = pickupLabels
+      ? '<div class="page-break"></div>'
+      : '';
+    document.getElementById('label-grid').innerHTML = shipLabels + pageBreak + pickupLabels;
+  } else {
+    document.getElementById('label-grid').innerHTML = shown.map(renderLabel).join('');
+  }
 }
 
 function renderLabel(o) {
