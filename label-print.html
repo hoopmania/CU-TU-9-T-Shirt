@@ -223,7 +223,7 @@ function applyFilter() {
     let remaining = [];
     if (startFrom) {
       const idx = pool.findIndex(o =>
-        (o.info.buyerName||'').localeCompare(startFrom, 'th') >= 0 &&
+        (o.info.buyerName||'').toLowerCase().includes(startFrom.toLowerCase()) &&
         !reprintSet.includes(o)
       );
       remaining = idx >= 0 ? pool.slice(idx).filter(o => !reprintSet.includes(o)) : [];
