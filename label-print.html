@@ -105,7 +105,7 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
 /* Print — margin บน @page ถูก Chrome override ด้วย Margins:None
    ให้ใช้ padding บน label-grid แทน ปรับได้ผ่าน --off-top/--off-left */
 :root {
-  --off-top: 1.5mm;
+  --off-top: 4mm;
   --off-left: 6mm;
 }
 @media print {
@@ -120,6 +120,7 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
     row-gap: 3mm;
   }
   .label { border: none; }
+  .lbl-top { display: none; }  /* orderId/tag: hidden in print, not critical for shipping */
 }
 </style>
 </head>
@@ -137,7 +138,7 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
   <span id="status">— กดโหลดข้อมูลก่อน —</span>
   <span style="border-left:1px solid #ddd;margin-left:4px;padding-left:12px;font-size:12px;color:#555;display:flex;align-items:center;gap:8px;">
     ปรับตำแหน่ง:
-    บน <input type="number" id="off-top" value="1.5" step="0.5" style="width:48px;padding:3px 4px;font-size:12px;border:1px solid #ccc;border-radius:4px;" oninput="updateOffset()">mm
+    บน <input type="number" id="off-top" value="4" step="0.5" style="width:48px;padding:3px 4px;font-size:12px;border:1px solid #ccc;border-radius:4px;" oninput="updateOffset()">mm
     ซ้าย <input type="number" id="off-left" value="6" step="0.5" style="width:48px;padding:3px 4px;font-size:12px;border:1px solid #ccc;border-radius:4px;" oninput="updateOffset()">mm
   </span>
 </div>
