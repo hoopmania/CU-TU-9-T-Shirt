@@ -100,6 +100,7 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
   grid-column: 1 / -1;
   break-before: page;
   page-break-before: always;
+  height: var(--off-top); /* gives page 2+ the same top offset as page 1 */
 }
 
 /* Print — margin บน @page ถูก Chrome override ด้วย Margins:None
@@ -140,6 +141,11 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
     ปรับตำแหน่ง:
     บน <input type="number" id="off-top" value="3" step="0.5" style="width:48px;padding:3px 4px;font-size:12px;border:1px solid #ccc;border-radius:4px;" oninput="updateOffset()">mm
     ซ้าย <input type="number" id="off-left" value="6" step="0.5" style="width:48px;padding:3px 4px;font-size:12px;border:1px solid #ccc;border-radius:4px;" oninput="updateOffset()">mm
+  </span>
+  <span style="border-left:1px solid #ddd;margin-left:4px;padding-left:12px;font-size:12px;color:#555;display:flex;align-items:center;gap:6px;">
+    🔁 พิมพ์ซ้ำ:
+    <input type="text" id="reprint-filter" placeholder="ชื่อที่ต้องการ (คั่นด้วย Enter หรือ ,)" style="width:220px;padding:3px 6px;font-size:12px;border:1px solid #ccc;border-radius:4px;font-family:inherit;" oninput="applyFilter()">
+    <button class="btn btn-gray" style="padding:4px 10px;font-size:11px;" onclick="document.getElementById('reprint-filter').value='';applyFilter()">ล้าง</button>
   </span>
 </div>
 
@@ -198,17 +204,31 @@ async function loadLabels() {
 
 function applyFilter() {
   const filter = document.getElementById('filter-type').value;
-  const shown = filter === 'all' ? allOrders : allOrders.filter(o => o.info.delivery === filter);
+  const reprintRaw = (document.getElementById('reprint-filter') || {}).value || '';
+  const reprintNames = reprintRaw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+
+  let shown = filter === 'all' ? allOrders : allOrders.filter(o => o.info.delivery === filter);
+
+  // If reprint names given, show only matching orders (no page-break grouping)
+  if (reprintNames.length > 0) {
+    shown = shown.filter(o => {
+      const name = o.info.buyerName || '';
+      return reprintNames.some(n => name.includes(n));
+    });
+    document.getElementById('status').textContent =
+      `พิมพ์ซ้ำ ${shown.length} ลาเบล`;
+    document.getElementById('label-grid').innerHTML = shown.map(renderLabel).join('');
+    return;
+  }
+
   document.getElementById('status').textContent =
     `แสดง ${shown.length} ลาเบล จากทั้งหมด ${allOrders.length}`;
 
   // Insert page break between จัดส่ง and รับเอง groups
   if (filter === 'all') {
-    const shipLabels  = shown.filter(o => o.info.delivery === 'จัดส่ง').map(renderLabel).join('');
+    const shipLabels   = shown.filter(o => o.info.delivery === 'จัดส่ง').map(renderLabel).join('');
     const pickupLabels = shown.filter(o => o.info.delivery === 'รับเอง').map(renderLabel).join('');
-    const pageBreak = pickupLabels
-      ? '<div class="page-break"></div>'
-      : '';
+    const pageBreak = pickupLabels ? '<div class="page-break"></div>' : '';
     document.getElementById('label-grid').innerHTML = shipLabels + pageBreak + pickupLabels;
   } else {
     document.getElementById('label-grid').innerHTML = shown.map(renderLabel).join('');
