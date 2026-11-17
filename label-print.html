@@ -174,8 +174,16 @@ async function loadLabels() {
       orders[r.orderId].entries.push(r);
     });
 
+    // Filter out "รวมส่ง" orders — their items ship with parent order, no label needed
+    // Also filter after normalization: note contains "รวมกับ CUxxxxx"
+    const filteredOrders = Object.values(orders).filter(o => {
+      if (o.info.delivery === 'รวมส่ง') return false;
+      if (/รวมกับ\s*CU/i.test(o.info.note || '')) return false;
+      return true;
+    });
+
     // Sort: จัดส่ง first, then รับเอง; within each group sort by name
-    allOrders = Object.values(orders).sort((a, b) => {
+    allOrders = filteredOrders.sort((a, b) => {
       if (a.info.delivery === b.info.delivery)
         return (a.info.buyerName || '').localeCompare(b.info.buyerName || '', 'th');
       return a.info.delivery === 'จัดส่ง' ? -1 : 1;
