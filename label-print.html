@@ -15,15 +15,19 @@ body { font-family: 'Sarabun','Noto Sans Thai',sans-serif; background: #e8e8e8; 
 select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; }
 .hint { font-size: 12px; color: #888; }
 
-/* Label grid on screen */
-.label-grid { display: flex; flex-wrap: wrap; gap: 3px; }
+/* Label grid — 2 per row for A4 (2×79=158mm fits in 200mm usable) */
+.label-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 79mm);
+  gap: 2mm;
+}
 
-/* Individual label — exact print size */
+/* Individual label — landscape 79×34mm */
 .label {
-  width: 34mm;
-  height: 79mm;
+  width: 79mm;
+  height: 34mm;
   box-sizing: border-box;
-  padding: 2mm 2mm 1.5mm;
+  padding: 1.5mm 2mm 1mm;
   overflow: hidden;
   background: #fff;
   border: 0.4pt solid #bbb;
@@ -33,47 +37,76 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
   break-inside: avoid;
 }
 
-/* Label elements */
-.lbl-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1mm; }
-.lbl-oid { font-size: 5.5pt; color: #999; line-height: 1; }
-.lbl-tag { font-size: 5.5pt; font-weight: 700; color: #fff; padding: 0.4mm 1.2mm; border-radius: 1.5mm; white-space: nowrap; }
+/* Row 1: orderId + tag */
+.lbl-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5mm;
+  line-height: 1;
+}
+.lbl-oid { font-size: 5.5pt; color: #aaa; }
+.lbl-tag {
+  font-size: 5.5pt; font-weight: 700; color: #fff;
+  padding: 0.3mm 1.2mm; border-radius: 1.5mm; white-space: nowrap;
+}
 .tag-ship { background: #1a56db; }
 .tag-pickup { background: #2f7d4f; }
 
-.lbl-name { font-size: 9pt; font-weight: 700; line-height: 1.25; margin-bottom: 0.8mm; word-break: break-word; }
-
-.lbl-phone { font-size: 7pt; color: #222; margin-bottom: 0.5mm; }
-
-.lbl-addr {
-  font-size: 6pt;
-  color: #333;
-  line-height: 1.4;
-  border-top: 0.5pt dashed #ccc;
-  padding-top: 0.8mm;
-  margin-top: 0.3mm;
+/* Row 2: main body — left info, right shirts */
+.lbl-body {
+  display: flex;
   flex: 1;
+  gap: 2mm;
+  overflow: hidden;
+  min-height: 0;
+}
+.lbl-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+.lbl-right {
+  width: 29mm;
+  flex-shrink: 0;
+  border-left: 0.5pt solid #ccc;
+  padding-left: 1.5mm;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-.lbl-shirts {
-  border-top: 0.5pt solid #666;
-  padding-top: 1mm;
-  margin-top: auto;
+.lbl-name {
+  font-size: 8.5pt; font-weight: 700; line-height: 1.25;
+  margin-bottom: 0.5mm;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.lbl-shirts-hd { font-size: 5.5pt; color: #555; margin-bottom: 0.5mm; letter-spacing: 0.03em; }
-.lbl-shirt-row { font-size: 7pt; font-weight: 700; line-height: 1.4; color: #111; }
-.lbl-shirt-who { font-size: 6pt; font-weight: 400; color: #666; }
+.lbl-phone { font-size: 6.5pt; color: #222; margin-bottom: 0.4mm; }
+.lbl-addr {
+  font-size: 6pt; color: #444; line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+}
 
-/* Spacer when no address */
-.lbl-spacer { flex: 1; }
+.lbl-shirts-hd { font-size: 5pt; color: #888; margin-bottom: 0.4mm; text-transform: uppercase; letter-spacing: 0.05em; }
+.lbl-shirt-row { font-size: 6.5pt; font-weight: 700; line-height: 1.45; color: #111; }
+.lbl-shirt-who { font-size: 5.5pt; font-weight: 400; color: #777; }
 
-/* Print */
+/* Print — A12 layout: 2×6 = 12 labels per A4
+   A4 = 210×297mm, labels 79×34mm
+   col margin: (210 - 2×79) / 2 = 26mm each side
+   row margin: (297 - 6×34) / 2 = 46.5mm each side  */
 @media print {
   body { background: white; padding: 0; margin: 0; }
   .controls { display: none !important; }
-  .label-grid { gap: 0; }
-  .label { border: 0.3pt solid #ccc; }
-  @page { margin: 5mm; size: A4 portrait; }
+  .label-grid {
+    gap: 0;
+    grid-template-columns: repeat(2, 79mm);
+  }
+  .label { border: 0.3pt solid #bbb; }
+  @page { margin: 46.5mm 26mm; size: A4 portrait; }
 }
 </style>
 </head>
@@ -89,7 +122,7 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
   </select>
   <button class="btn btn-green" onclick="window.print()">🖨️ พิมพ์</button>
   <span id="status">— กดโหลดข้อมูลก่อน —</span>
-  <span class="hint">ลาเบล 34×79mm (ตราช้าง A12)</span>
+  <span class="hint">ลาเบล 79×34mm แนวนอน (ตราช้าง A12) — 2 ดวงต่อแถว</span>
 </div>
 
 <div class="label-grid" id="label-grid"></div>
@@ -142,10 +175,10 @@ function renderLabel(o) {
   const r = o.info;
   const isShip = r.delivery === 'จัดส่ง';
 
-  // Shirt rows — group by entry (person)
+  // Shirt rows — one line per entry/person
   const shirtLines = [];
   o.entries.forEach(e => {
-    const who = e.forWhom ? `<span class="lbl-shirt-who">(${e.forWhom})</span> ` : '';
+    const who = e.forWhom ? `<span class="lbl-shirt-who">(${e.forWhom}) </span>` : '';
     const items = [
       e.navySize   ? `CU กรมท่า ${e.navySize}`  : '',
       e.whiteSize  ? `TU ขาว ${e.whiteSize}`     : '',
@@ -154,26 +187,24 @@ function renderLabel(o) {
     if (items) shirtLines.push(`<div class="lbl-shirt-row">${who}${items}</div>`);
   });
 
-  const phoneHtml = isShip
-    ? `<div class="lbl-phone">📞 ${r.phone || '-'}</div>` : '';
-
-  const addrHtml = isShip && r.address
-    ? `<div class="lbl-addr">${r.address}</div>` : '';
-
-  const spacerHtml = !isShip ? `<div class="lbl-spacer"></div>` : '';
+  const phoneHtml = isShip ? `<div class="lbl-phone">📞 ${r.phone || '-'}</div>` : '';
+  const addrHtml  = isShip && r.address ? `<div class="lbl-addr">${r.address}</div>` : '';
 
   return `<div class="label">
     <div class="lbl-top">
       <span class="lbl-oid">${r.orderId}</span>
       <span class="lbl-tag ${isShip ? 'tag-ship' : 'tag-pickup'}">${isShip ? '📦 จัดส่ง' : '🤝 รับเอง'}</span>
     </div>
-    <div class="lbl-name">${r.buyerName || '-'}</div>
-    ${phoneHtml}
-    ${addrHtml}
-    ${spacerHtml}
-    <div class="lbl-shirts">
-      <div class="lbl-shirts-hd">เสื้อที่สั่ง</div>
-      ${shirtLines.join('') || '<div class="lbl-shirt-row" style="color:#999;">—</div>'}
+    <div class="lbl-body">
+      <div class="lbl-left">
+        <div class="lbl-name">${r.buyerName || '-'}</div>
+        ${phoneHtml}
+        ${addrHtml}
+      </div>
+      <div class="lbl-right">
+        <div class="lbl-shirts-hd">เสื้อที่สั่ง</div>
+        ${shirtLines.join('') || '<div class="lbl-shirt-row" style="color:#bbb;">—</div>'}
+      </div>
     </div>
   </div>`;
 }
