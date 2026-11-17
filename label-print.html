@@ -226,10 +226,6 @@ function renderLabel(o) {
   const addrHtml  = isShip && r.address ? `<div class="lbl-addr">${r.address}</div>` : '';
 
   return `<div class="label">
-    <div class="lbl-top">
-      <span class="lbl-oid">${r.orderId}</span>
-      <span class="lbl-tag ${isShip ? 'tag-ship' : 'tag-pickup'}">${isShip ? '📦 จัดส่ง' : '🤝 รับเอง'}</span>
-    </div>
     <div class="lbl-body">
       <div class="lbl-left">
         <div class="lbl-name">${r.buyerName || '-'}</div>
@@ -240,6 +236,10 @@ function renderLabel(o) {
         <div class="lbl-shirts-hd">เสื้อที่สั่ง</div>
         ${shirtLines.join('') || '<div class="lbl-shirt-row" style="color:#bbb;">—</div>'}
       </div>
+    </div>
+    <div class="lbl-top" style="margin-top:auto;padding-top:0.5mm;">
+      <span class="lbl-oid">${r.orderId}</span>
+      <span class="lbl-tag ${isShip ? 'tag-ship' : 'tag-pickup'}">${isShip ? '📦 จัดส่ง' : '🤝 รับเอง'}</span>
     </div>
   </div>`;
 }
