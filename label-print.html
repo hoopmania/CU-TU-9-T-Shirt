@@ -15,11 +15,12 @@ body { font-family: 'Sarabun','Noto Sans Thai',sans-serif; background: #e8e8e8; 
 select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; }
 .hint { font-size: 12px; color: #888; }
 
-/* Label grid — 2 per row for A4 (2×79=158mm fits in 200mm usable) */
+/* Label grid — 2×6 = 12 per sheet, gaps match physical sheet */
 .label-grid {
   display: grid;
   grid-template-columns: repeat(2, 79mm);
-  gap: 2mm;
+  column-gap: 3mm;
+  row-gap: 3mm;
 }
 
 /* Individual label — landscape 79×34mm */
@@ -94,19 +95,21 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
 .lbl-shirt-row { font-size: 6.5pt; font-weight: 700; line-height: 1.45; color: #111; }
 .lbl-shirt-who { font-size: 5.5pt; font-weight: 400; color: #777; }
 
-/* Print — A12 layout: 2×6 = 12 labels per A4
-   A4 = 210×297mm, labels 79×34mm
-   col margin: (210 - 2×79) / 2 = 26mm each side
-   row margin: (297 - 6×34) / 2 = 46.5mm each side  */
+/* Print — sheet 173×222mm, margins: top/bottom 1.5mm, left/right 6mm
+   col-gap 3mm, row-gap 3mm → 2×6 = 12 labels */
 @media print {
   body { background: white; padding: 0; margin: 0; }
   .controls { display: none !important; }
   .label-grid {
-    gap: 0;
     grid-template-columns: repeat(2, 79mm);
+    column-gap: 3mm;
+    row-gap: 3mm;
   }
   .label { border: 0.3pt solid #bbb; }
-  @page { margin: 46.5mm 26mm; size: A4 portrait; }
+  @page {
+    size: 173mm 222mm;
+    margin: 1.5mm 6mm;
+  }
 }
 </style>
 </head>
