@@ -144,8 +144,10 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
   </span>
   <span style="border-left:1px solid #ddd;margin-left:4px;padding-left:12px;font-size:12px;color:#555;display:flex;align-items:center;gap:6px;">
     🔁 พิมพ์ซ้ำ:
-    <input type="text" id="reprint-filter" placeholder="ชื่อที่ต้องการ (คั่นด้วย Enter หรือ ,)" style="width:220px;padding:3px 6px;font-size:12px;border:1px solid #ccc;border-radius:4px;font-family:inherit;" oninput="applyFilter()">
-    <button class="btn btn-gray" style="padding:4px 10px;font-size:11px;" onclick="document.getElementById('reprint-filter').value='';applyFilter()">ล้าง</button>
+    <input type="text" id="reprint-filter" placeholder="ชื่อที่ต้องพิมพ์ซ้ำ (คั่น ,)" style="width:200px;padding:3px 6px;font-size:12px;border:1px solid #ccc;border-radius:4px;font-family:inherit;" oninput="applyFilter()">
+    ➕ ต่อจาก:
+    <input type="text" id="start-from" placeholder="ชื่อแรกที่ยังไม่ปริ้น" style="width:160px;padding:3px 6px;font-size:12px;border:1px solid #ccc;border-radius:4px;font-family:inherit;" oninput="applyFilter()">
+    <button class="btn btn-gray" style="padding:4px 10px;font-size:11px;" onclick="document.getElementById('reprint-filter').value='';document.getElementById('start-from').value='';applyFilter()">ล้าง</button>
   </span>
 </div>
 
@@ -203,35 +205,48 @@ async function loadLabels() {
 }
 
 function applyFilter() {
-  const filter = document.getElementById('filter-type').value;
+  const filter    = document.getElementById('filter-type').value;
   const reprintRaw = (document.getElementById('reprint-filter') || {}).value || '';
+  const startFrom  = ((document.getElementById('start-from') || {}).value || '').trim();
   const reprintNames = reprintRaw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
 
-  let shown = filter === 'all' ? allOrders : allOrders.filter(o => o.info.delivery === filter);
+  const pool = filter === 'all' ? allOrders : allOrders.filter(o => o.info.delivery === filter);
 
-  // If reprint names given, show only matching orders (no page-break grouping)
-  if (reprintNames.length > 0) {
-    shown = shown.filter(o => {
-      const name = o.info.buyerName || '';
-      return reprintNames.some(n => name.includes(n));
-    });
+  // ---- Reprint + continue mode ----
+  if (reprintNames.length > 0 || startFrom) {
+    // 1) reprint labels (exact name matches)
+    const reprintSet = reprintNames.length > 0
+      ? pool.filter(o => reprintNames.some(n => (o.info.buyerName||'').includes(n)))
+      : [];
+
+    // 2) remaining labels: from startFrom onwards, excluding reprints
+    let remaining = [];
+    if (startFrom) {
+      const idx = pool.findIndex(o =>
+        (o.info.buyerName||'').localeCompare(startFrom, 'th') >= 0 &&
+        !reprintSet.includes(o)
+      );
+      remaining = idx >= 0 ? pool.slice(idx).filter(o => !reprintSet.includes(o)) : [];
+    }
+
+    const combined = [...reprintSet, ...remaining];
     document.getElementById('status').textContent =
-      `พิมพ์ซ้ำ ${shown.length} ลาเบล`;
-    document.getElementById('label-grid').innerHTML = shown.map(renderLabel).join('');
+      `🔁 ${reprintSet.length} ซ้ำ + ➡️ ${remaining.length} ต่อ = ${combined.length} ลาเบล`;
+    document.getElementById('label-grid').innerHTML = combined.map(renderLabel).join('');
     return;
   }
 
+  // ---- Normal mode ----
   document.getElementById('status').textContent =
-    `แสดง ${shown.length} ลาเบล จากทั้งหมด ${allOrders.length}`;
+    `แสดง ${pool.length} ลาเบล จากทั้งหมด ${allOrders.length}`;
 
-  // Insert page break between จัดส่ง and รับเอง groups
   if (filter === 'all') {
-    const shipLabels   = shown.filter(o => o.info.delivery === 'จัดส่ง').map(renderLabel).join('');
-    const pickupLabels = shown.filter(o => o.info.delivery === 'รับเอง').map(renderLabel).join('');
+    const shipLabels   = pool.filter(o => o.info.delivery === 'จัดส่ง').map(renderLabel).join('');
+    const pickupLabels = pool.filter(o => o.info.delivery === 'รับเอง').map(renderLabel).join('');
     const pageBreak = pickupLabels ? '<div class="page-break"></div>' : '';
     document.getElementById('label-grid').innerHTML = shipLabels + pageBreak + pickupLabels;
   } else {
-    document.getElementById('label-grid').innerHTML = shown.map(renderLabel).join('');
+    document.getElementById('label-grid').innerHTML = pool.map(renderLabel).join('');
   }
 }
 
