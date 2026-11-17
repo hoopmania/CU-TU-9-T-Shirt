@@ -102,21 +102,24 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
   page-break-before: always;
 }
 
-/* Print — sheet 173×222mm, margins: top/bottom 1.5mm, left/right 6mm
-   col-gap 3mm, row-gap 3mm → 2×6 = 12 labels */
+/* Print — margin บน @page ถูก Chrome override ด้วย Margins:None
+   ให้ใช้ padding บน label-grid แทน ปรับได้ผ่าน --off-top/--off-left */
+:root {
+  --off-top: 1.5mm;
+  --off-left: 6mm;
+}
 @media print {
   body { background: white; padding: 0; margin: 0; }
   .controls { display: none !important; }
+  @page { margin: 0; size: 173mm 222mm; }
   .label-grid {
+    padding-top: var(--off-top);
+    padding-left: var(--off-left);
     grid-template-columns: repeat(2, 79mm);
     column-gap: 3mm;
     row-gap: 3mm;
   }
   .label { border: 0.3pt solid #bbb; }
-  @page {
-    size: 173mm 222mm;
-    margin: 1.5mm 6mm;
-  }
 }
 </style>
 </head>
@@ -132,12 +135,23 @@ select { font-family: inherit; font-size: 13px; padding: 5px 8px; border: 1px so
   </select>
   <button class="btn btn-green" onclick="window.print()">🖨️ พิมพ์</button>
   <span id="status">— กดโหลดข้อมูลก่อน —</span>
-  <span class="hint">ลาเบล 79×34mm แนวนอน (ตราช้าง A12) — 2 ดวงต่อแถว</span>
+  <span style="border-left:1px solid #ddd;margin-left:4px;padding-left:12px;font-size:12px;color:#555;display:flex;align-items:center;gap:8px;">
+    ปรับตำแหน่ง:
+    บน <input type="number" id="off-top" value="1.5" step="0.5" style="width:48px;padding:3px 4px;font-size:12px;border:1px solid #ccc;border-radius:4px;" oninput="updateOffset()">mm
+    ซ้าย <input type="number" id="off-left" value="6" step="0.5" style="width:48px;padding:3px 4px;font-size:12px;border:1px solid #ccc;border-radius:4px;" oninput="updateOffset()">mm
+  </span>
 </div>
 
 <div class="label-grid" id="label-grid"></div>
 
 <script>
+function updateOffset() {
+  const top  = document.getElementById('off-top').value  || 0;
+  const left = document.getElementById('off-left').value || 0;
+  document.documentElement.style.setProperty('--off-top',  top  + 'mm');
+  document.documentElement.style.setProperty('--off-left', left + 'mm');
+}
+
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyahqzPFMiJGktwRGaOoBQsFRrS4iIVqkWSUCcAJg0wG5G_8D6UesqOvylcABj1JeNI/exec';
 
 let allOrders = [];
