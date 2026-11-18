@@ -142,10 +142,23 @@ function renderList() {
     orders[r.orderId].entries.push(r);
   });
 
-  let orderArr = Object.values(orders).filter(o => {
+  // Merge multiple orders from the same buyer (same phone) into one card
+  const byBuyer = {};
+  Object.values(orders).forEach(o => {
+    const key = (o.info.phone || '').replace(/\s/g,'') || o.info.buyerName || o.info.orderId;
+    if (!byBuyer[key]) {
+      byBuyer[key] = { info: o.info, entries: [], orderIds: [o.info.orderId] };
+    } else {
+      byBuyer[key].orderIds.push(o.info.orderId);
+    }
+    byBuyer[key].entries.push(...o.entries);
+  });
+
+  let orderArr = Object.values(byBuyer).filter(o => {
     const r = o.info;
     const matchQ = !q || (r.buyerName||'').toLowerCase().includes(q)
-      || (r.phone||'').includes(q) || (r.orderId||'').toLowerCase().includes(q);
+      || (r.phone||'').includes(q)
+      || o.orderIds.some(id => id.toLowerCase().includes(q));
     const matchD = !dlv || r.delivery === dlv;
     return matchQ && matchD;
   });
@@ -179,8 +192,7 @@ function renderList() {
 
     const addrLine = isShip && r.address ? `<div class="addr">📍 ${r.address}</div>` : '';
     const combined = o.combined || [];
-    const totalQty = o.entries.reduce((s,e)=>s+(parseInt(e.qty)||0),0)
-      + combined.reduce((s,c)=>s+c.entries.reduce((a,e)=>a+(parseInt(e.qty)||0),0),0);
+    const totalQty = o.entries.reduce((s,e)=>s+(parseInt(e.qty)||0),0);
 
     function makeRows(entries, labelPrefix) {
       return entries.map((e,i) => {
@@ -211,7 +223,7 @@ function renderList() {
     return `<div class="order-card">
       <div class="order-head">
         <div>
-          <div class="id">${r.orderId} ${badge}${combined.length ? ` <span class="badge badge-combine">+${combined.length} รวมส่ง</span>` : ''}</div>
+          <div class="id">${o.orderIds.join(' · ')} ${badge}${o.orderIds.length > 1 ? ` <span class="badge badge-combine">รวม ${o.orderIds.length} ออร์เดอร์</span>` : ''}</div>
           <div class="buyer">${r.buyerName}</div>
           <div class="meta">📞 ${r.phone} &nbsp;|&nbsp; LINE: ${r.lineId || '—'}</div>
           ${addrLine}
